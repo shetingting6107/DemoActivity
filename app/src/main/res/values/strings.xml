@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">DemoApp</string>
+    <string name="string_access">辅助功能</string>
+    <string name="string_back">back</string>
+</resources>

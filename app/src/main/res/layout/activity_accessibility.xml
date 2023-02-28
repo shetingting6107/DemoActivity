@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="15dp">
+    
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp">
+        
+        <TextView
+            android:id="@+id/tv_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/color_dark_gray"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="@string/string_back"
+            android:textColor="@color/color_black"
+            android:textSize="15sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="@string/string_access"
+            android:textSize="20sp"/>
+        
+    </RelativeLayout>
+    
+    <TextView
+        android:id="@+id/tv_start_access_service"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:background="@color/color_dark_gray"
+        android:gravity="center"
+        android:text="Start Access Service"
+        android:textColor="@color/color_black"
+        android:textSize="15sp"/>
+
+</LinearLayout>

@@ -1,0 +1,6 @@
+Xlog 使用教程
+1.添加依赖 implementation 'com.elvishew:xlog:1.7.2'
+
+2.Xlog 初始化 Xlog.init()
+
+详见：https://blog.csdn.net/qq_36611526/article/details/111469941
