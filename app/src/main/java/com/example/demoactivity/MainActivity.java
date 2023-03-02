@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.demoactivity.accessibility.ui.AccessibilityActivity;
+import com.example.demoactivity.content.observer.DemoObserverActivity;
 import com.example.demoactivity.content.resolver.ContentResolverActivity;
 import com.example.demoactivity.xLog.XlogActivity;
 
@@ -46,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         tv_content.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, ContentResolverActivity.class);
+                Intent intent = new Intent(MainActivity.this, DemoObserverActivity.class);
                 startActivity(intent);
             }
         });

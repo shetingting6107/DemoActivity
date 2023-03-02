@@ -38,6 +38,12 @@
             android:launchMode="singleTask"
             android:theme="@style/AppTheme"/>
 
+        <activity android:name=".content.observer.DemoObserverActivity"
+            android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme"/>
+
         <service
             android:name=".accessibility.service.MyAccessibilityService"
             android:enabled="true"
