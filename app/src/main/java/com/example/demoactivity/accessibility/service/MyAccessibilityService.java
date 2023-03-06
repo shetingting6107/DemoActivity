@@ -1,13 +1,17 @@
 package com.example.demoactivity.accessibility.service;
 
 import android.accessibilityservice.AccessibilityService;
+import android.accessibilityservice.AccessibilityServiceInfo;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
 public class MyAccessibilityService extends AccessibilityService {
+
+    private static final String APP_PACKAGE_NAME = "com.ss.android.ugc.aweme";
 
     /**
      * 当启动服务的时候就会被调用,系统成功绑定该服务时被触发，也就是当你在设置中开启相应的服务，
@@ -15,7 +19,9 @@ public class MyAccessibilityService extends AccessibilityService {
      */
     @Override
     protected void onServiceConnected() {
-        super.onServiceConnected();
+        AccessibilityServiceInfo info = getServiceInfo();
+        info.packageNames = new String[]{APP_PACKAGE_NAME};//监听的app是抖音
+        this.setServiceInfo(info);
     }
 
     /**
@@ -25,7 +31,14 @@ public class MyAccessibilityService extends AccessibilityService {
      */
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
+        String packageName = event.getPackageName().toString();
+        if (!packageName.equals(APP_PACKAGE_NAME)) {
+            return;//监听到的包不是对应的包则不处理
+        }
+        int eventType = event.getEventType();
+        switch (eventType) {
 
+        }
     }
 
     /**
@@ -33,7 +46,7 @@ public class MyAccessibilityService extends AccessibilityService {
      */
     @Override
     public void onInterrupt() {
-
+        Toast.makeText(this, "DemoActivity 辅助功能中断！", Toast.LENGTH_SHORT).show();
     }
 
     /**

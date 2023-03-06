@@ -52,7 +52,7 @@
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
 
             <intent-filter>
-                <action android:name="android.intent.action.RESPOND_VIA_MESSAGE" />
+                <action android:name="android.accessibilityservice.AccessibilityService"/>
             </intent-filter>
 
             <meta-data

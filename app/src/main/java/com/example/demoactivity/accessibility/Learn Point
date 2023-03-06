@@ -9,12 +9,38 @@ intent-filter：这个name是固定不变的
 
 3.配置服务参数 此处使用的是：在AndroidManifest中增加meta-data标签指定特定xml文件——accessibility_config.xml
 accessibilityEventTypes：表示该服务对界面中的哪些变化感兴趣，即哪些事件通知，比如窗口打开，滑动，焦点变化，长按等。具体的值可以在AccessibilityEvent类中查到，如typeAllMask表示接受所有的事件通知
+    typeViewClicked——点击事件；typeViewSelected——view被选择；typeViewScrolled——滑动事件；typeWindowContentChanged——窗口内容改变；typeAllMask——所有事件
 accessibilityFeedbackType：表示反馈方式，比如是语音播放，还是震动
+    feedbackSpoken——语音反馈；feedbackHaptic——触觉反馈（震动）；feedbackAudible——音频反馈；feedbackVisual——视频反馈；feedbackGeneric——通用反馈；feedbackAllMask——以上都具备
 canRetrieveWindowContent：表示该服务能否访问活动窗口中的内容。也就是如果你希望在服务中获取窗体内容，则需要设置其值为true
-description：对该无障碍功能的描述，具体体现在下图
+description：对该无障碍功能的描述
 notificationTimeout：接受事件的时间间隔，通常将其设置为100即可
 packageNames：表示对该服务是用来监听哪个包的产生的事件
+canPerformGestures:表示是否允许进行手势分发
+canRequestFilterKeyEvents：辅助服务希望能够请求过滤关键事件
+nonInteractiveUiTimeout：超时设置，未不包含交互式空间返回合适的值
 
 4.通过 startActivity(Settings.ACTION_ACCESSIBILITY_SETTINGS); 开启辅助功能服务
 
-5.
+5.获取事件信息。当我们监听的目标应用界面或者界面等信息，会通过onAccessibilityEvent回调我们的事件，接着进行事件的处理。
+getAction()：获取触发此世界的已执行操作
+getEventTime()：获取发送此事件的时间
+getEventType()：获取事件类型。
+getPackageName()：获取源的包名称
+从AccessibilityRecord基础的方法
+getMaxScrollY()：获取源上边缘的最大滚动偏移（以像素为单位）
+getMaxScrollX()：获取源左边缘的最大滚动偏移量（以像素为单位）。
+getClassName()：获取源的类名。
+getText()：获取事件的文本，比如事件是有TextView发出的,此时获取的就是TextView的text属性。如果该事件源是树结构，那么此时获取的是这个树上所有具有text属性的值的集合
+getToIndex()： 获取滚动时文本选择结束的索引或最后一个可见项的索引。
+getItemCount()：如果事件源是树结构，将返回该树根节点下子节点的数量
+更详细的可以参考官方文档：https://developer.android.com/reference/android/view/accessibility/AccessibilityEvent.html
+
+关于事件类型getEventType()返回值：
+
+TYPE_VIEW_LONG_CLICKED 长按事件
+TYPE_VIEW_CONTEXT_CLICKED点击事件
+TYPE_WINDOW_STATE_CHANGED 表示用户界面被更改。
+TYPE_NOTIFICATION_STATE_CHANGED：通知栏的改变
+TYPE_WINDOWS_CHANGED：表示系统窗口的时间变更
+…还有很多，详情可以看看官方文档
