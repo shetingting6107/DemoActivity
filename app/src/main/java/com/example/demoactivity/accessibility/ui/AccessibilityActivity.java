@@ -36,12 +36,12 @@ public class AccessibilityActivity extends AppCompatActivity {
         tv_label = findViewById(R.id.tv_label);
     }
 
-    public static void setLabel(String name, String text) {
+    public static void setLabel(String name, String text, String packageName) {
         if (TextUtils.isEmpty(name) || TextUtils.isEmpty(text)) {
             return;
         }
 
-        labelText += "好友名：" + name + "; 发送内容：" + text + "\n";
+        labelText += "好友名：" + name + "; 发送内容：" + text + "来自：" + packageName + "\n";
         tv_label.setText(labelText);
     }
 }

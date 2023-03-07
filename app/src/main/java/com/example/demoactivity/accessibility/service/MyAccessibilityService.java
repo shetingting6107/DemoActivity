@@ -85,7 +85,7 @@ public class MyAccessibilityService extends AccessibilityService {
                 AccessibilityNodeInfo chatFri = getChatName(root);
                 if (chatFri != null) {
                     String friendName = getStr(chatFri.getText());
-                    AccessibilityActivity.setLabel(friendName, text.toString());
+                    AccessibilityActivity.setLabel(friendName, text.toString(), getAppPackageName());
                     text = "";
                 }
                 break;
@@ -153,6 +153,29 @@ public class MyAccessibilityService extends AccessibilityService {
             return null;
         }
         return nameList.get(0);
+    }
+
+    private String getAppPackageName() {
+        String name = "";
+        if (packName == null) {
+            return name;
+        }
+
+        switch (packName) {
+            case APP_PACKAGE_NAME:
+                name = "抖音";
+                break;
+            case APP_PACKAGE_NAME1:
+                name = "抖音极速版";
+                break;
+            case APP_PACKAGE_NAME2:
+                name = "抖音火山版";
+                break;
+            default:
+                name = "";
+                break;
+        }
+        return name;
     }
 
     /**
