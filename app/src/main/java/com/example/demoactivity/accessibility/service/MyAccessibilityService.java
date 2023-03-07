@@ -2,6 +2,8 @@ package com.example.demoactivity.accessibility.service;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -9,9 +11,20 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.example.demoactivity.accessibility.ui.AccessibilityActivity;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class MyAccessibilityService extends AccessibilityService {
 
-    private static final String APP_PACKAGE_NAME = "com.ss.android.ugc.aweme";
+    private static final String APP_PACKAGE_NAME = "com.ss.android.ugc.aweme";//抖音
+    private static final String APP_PACKAGE_NAME1 = "com.ss.android.ugc.aweme.lite";//抖音极速版
+    private static final String APP_PACKAGE_NAME2 = "com.ss.android.ugc.live";//抖音火山版
+    private static final List<String> apps = new ArrayList<>();
+    private static final String TAG = "MyAccessibilityService";
+    private static CharSequence text = "";
+    private static String packName;
 
     /**
      * 当启动服务的时候就会被调用,系统成功绑定该服务时被触发，也就是当你在设置中开启相应的服务，
@@ -20,7 +33,10 @@ public class MyAccessibilityService extends AccessibilityService {
     @Override
     protected void onServiceConnected() {
         AccessibilityServiceInfo info = getServiceInfo();
-        info.packageNames = new String[]{APP_PACKAGE_NAME};//监听的app是抖音
+        info.packageNames = new String[]{APP_PACKAGE_NAME, APP_PACKAGE_NAME1, APP_PACKAGE_NAME2};//监听的app是抖音
+        apps.add(APP_PACKAGE_NAME);
+        apps.add(APP_PACKAGE_NAME1);
+        apps.add(APP_PACKAGE_NAME2);
         this.setServiceInfo(info);
     }
 
@@ -32,13 +48,111 @@ public class MyAccessibilityService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         String packageName = event.getPackageName().toString();
-        if (!packageName.equals(APP_PACKAGE_NAME)) {
+        if (!apps.contains(packageName)) {
             return;//监听到的包不是对应的包则不处理
         }
+        packName = packageName;
         int eventType = event.getEventType();
-        switch (eventType) {
-
+        Log.d(TAG, "eventType is = " + eventType);
+        AccessibilityNodeInfo root = this.getRootInActiveWindow();
+        AccessibilityNodeInfo chatView = null;
+        if (root != null){
+            chatView = inChatWindow(root);
         }
+        switch (eventType) {
+            //记录文字变化
+            case AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED:
+                Log.d(TAG, "text is changed");
+                if (chatView == null) {
+                    //非聊天界面不处理
+                    break;
+                }
+                CharSequence str = event.getText().get(0);
+                if (str != null && !str.toString().equals("发送消息") && !str.toString().equals("发消息...")) {
+                    text = str;
+                }
+                break;
+                //当页面滑动时，处理是否是对应处理事件
+            case AccessibilityEvent.TYPE_VIEW_SCROLLED:
+                Log.d(TAG, "click view");
+                if (chatView == null) {
+                    text = "";
+                    break;
+                }
+                if (TextUtils.isEmpty(text)){
+                    break;
+                }
+                AccessibilityNodeInfo chatFri = getChatName(root);
+                if (chatFri != null) {
+                    String friendName = getStr(chatFri.getText());
+                    AccessibilityActivity.setLabel(friendName, text.toString());
+                    text = "";
+                }
+                break;
+                //当退出聊天界面时会调用
+            case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
+                text = "";
+                break;
+        }
+    }
+
+    public String getStr(CharSequence charSequence) {
+        if (charSequence == null) {
+            return null;
+        }
+        return charSequence.toString();
+    }
+
+    private AccessibilityNodeInfo inChatWindow(AccessibilityNodeInfo root) {
+        if (root == null) {
+            return null;
+        }
+        if (packName == null) {
+            return null;
+        }
+        List<AccessibilityNodeInfo> chatList = null;
+        //聊天界面id
+        switch (packName) {
+            case APP_PACKAGE_NAME:
+                chatList = root.findAccessibilityNodeInfosByViewId("com.ss.android.ugc.aweme:id/pkg");
+                break;
+            case APP_PACKAGE_NAME1:
+                chatList = root.findAccessibilityNodeInfosByViewId("com.ss.android.ugc.aweme.lite:id/au-");
+                break;
+            case APP_PACKAGE_NAME2:
+                chatList = root.findAccessibilityNodeInfosByViewId("com.ss.android.ugc.live:id/al8");
+                break;
+        }
+        if (chatList == null || chatList.size() <= 0) {
+            return null;
+        }
+        return chatList.get(0);
+    }
+
+    private AccessibilityNodeInfo getChatName(AccessibilityNodeInfo root) {
+        if (root == null) {
+            return null;
+        }
+        if (packName == null) {
+            return null;
+        }
+        List<AccessibilityNodeInfo> nameList = null;
+        //聊天好友名称
+        switch (packName) {
+            case APP_PACKAGE_NAME:
+                nameList = root.findAccessibilityNodeInfosByViewId("com.ss.android.ugc.aweme:id/bi");
+                break;
+            case APP_PACKAGE_NAME1:
+                nameList = root.findAccessibilityNodeInfosByViewId("com.ss.android.ugc.aweme.lite:id/qd");
+                break;
+            case APP_PACKAGE_NAME2:
+                nameList = root.findAccessibilityNodeInfosByViewId("com.ss.android.ugc.live:id/title");
+                break;
+        }
+        if (nameList == null || nameList.size() <= 0) {
+            return null;
+        }
+        return nameList.get(0);
     }
 
     /**
