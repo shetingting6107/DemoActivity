@@ -21,6 +21,7 @@ public class MyAccessibilityService extends AccessibilityService {
     private static final String APP_PACKAGE_NAME = "com.ss.android.ugc.aweme";//抖音
     private static final String APP_PACKAGE_NAME1 = "com.ss.android.ugc.aweme.lite";//抖音极速版
     private static final String APP_PACKAGE_NAME2 = "com.ss.android.ugc.live";//抖音火山版
+    private static final String APP_PACKAGE_NAME3 = "com.tencent.mm";//微信
     private static final List<String> apps = new ArrayList<>();
     private static final String TAG = "MyAccessibilityService";
     private static CharSequence text = "";
@@ -33,10 +34,11 @@ public class MyAccessibilityService extends AccessibilityService {
     @Override
     protected void onServiceConnected() {
         AccessibilityServiceInfo info = getServiceInfo();
-        info.packageNames = new String[]{APP_PACKAGE_NAME, APP_PACKAGE_NAME1, APP_PACKAGE_NAME2};//监听的app是抖音
+        info.packageNames = new String[]{APP_PACKAGE_NAME, APP_PACKAGE_NAME1, APP_PACKAGE_NAME2, APP_PACKAGE_NAME3};//监听的app是抖音
         apps.add(APP_PACKAGE_NAME);
         apps.add(APP_PACKAGE_NAME1);
         apps.add(APP_PACKAGE_NAME2);
+        apps.add(APP_PACKAGE_NAME3);
         this.setServiceInfo(info);
     }
 
@@ -67,7 +69,7 @@ public class MyAccessibilityService extends AccessibilityService {
                     //非聊天界面不处理
                     break;
                 }
-                CharSequence str = event.getText().get(0);
+                CharSequence str = event.getText() != null && event.getText().size() > 0 ? event.getText().get(0) : null;
                 if (str != null && !str.toString().equals("发送消息") && !str.toString().equals("发消息...")) {
                     text = str;
                 }
@@ -88,10 +90,6 @@ public class MyAccessibilityService extends AccessibilityService {
                     AccessibilityActivity.setLabel(friendName, text.toString(), getAppPackageName());
                     text = "";
                 }
-                break;
-                //当退出聊天界面时会调用
-            case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
-                text = "";
                 break;
         }
     }
@@ -122,6 +120,11 @@ public class MyAccessibilityService extends AccessibilityService {
             case APP_PACKAGE_NAME2:
                 chatList = root.findAccessibilityNodeInfosByViewId("com.ss.android.ugc.live:id/al8");
                 break;
+            case APP_PACKAGE_NAME3:
+                chatList = root.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/b79");
+                break;
+            default:
+                break;
         }
         if (chatList == null || chatList.size() <= 0) {
             return null;
@@ -148,6 +151,11 @@ public class MyAccessibilityService extends AccessibilityService {
             case APP_PACKAGE_NAME2:
                 nameList = root.findAccessibilityNodeInfosByViewId("com.ss.android.ugc.live:id/title");
                 break;
+            case APP_PACKAGE_NAME3:
+                nameList = root.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/ko4");
+                break;
+            default:
+                break;
         }
         if (nameList == null || nameList.size() <= 0) {
             return null;
@@ -170,6 +178,9 @@ public class MyAccessibilityService extends AccessibilityService {
                 break;
             case APP_PACKAGE_NAME2:
                 name = "抖音火山版";
+                break;
+            case APP_PACKAGE_NAME3:
+                name = "微信";
                 break;
             default:
                 name = "";
