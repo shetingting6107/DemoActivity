@@ -2,6 +2,11 @@ package com.example.demoactivity.accessibility.service;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.os.Build;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -10,11 +15,13 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.collection.ArraySet;
 
 import com.example.demoactivity.accessibility.ui.AccessibilityActivity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class MyAccessibilityService extends AccessibilityService {
 
@@ -22,6 +29,8 @@ public class MyAccessibilityService extends AccessibilityService {
     private static final String APP_PACKAGE_NAME1 = "com.ss.android.ugc.aweme.lite";//抖音极速版
     private static final String APP_PACKAGE_NAME2 = "com.ss.android.ugc.live";//抖音火山版
     private static final String APP_PACKAGE_NAME3 = "com.tencent.mm";//微信
+
+    private static final List<String> sensitives = new ArrayList<>();
     private static final List<String> apps = new ArrayList<>();
     private static final String TAG = "MyAccessibilityService";
     private static CharSequence text = "";
@@ -39,6 +48,7 @@ public class MyAccessibilityService extends AccessibilityService {
         apps.add(APP_PACKAGE_NAME1);
         apps.add(APP_PACKAGE_NAME2);
         apps.add(APP_PACKAGE_NAME3);
+        initSensitive();
         this.setServiceInfo(info);
     }
 
@@ -62,6 +72,34 @@ public class MyAccessibilityService extends AccessibilityService {
             chatView = inChatWindow(root);
         }
         switch (eventType) {
+            case AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED:
+                Log.d(TAG, "view text changed");
+                if (chatView == null) {
+                    //非聊天界面不处理
+                    break;
+                }
+                CharSequence cs = event.getText() != null && event.getText().size() > 0 ? event.getText().get(0) : null;
+                if (cs == null || !cs.toString().equals("发送消息") && !cs.toString().equals("发消息...")) {
+                    text = cs;
+                }
+                if (text != null && sensitives.contains(text.toString())) {
+                    text = "****";
+                    Log.d(TAG, "contain sensitive word");
+                }
+                AccessibilityNodeInfo inputwindow = event.getSource();
+                if (Build.VERSION.SDK_INT >= 21) {
+                    Bundle arguments = new Bundle();
+                    arguments.putCharSequence(
+                            AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text);
+                    inputwindow.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments);
+                } else {
+                    selectInputwindow(inputwindow, text.length());
+                    ClipboardManager clipboardManager = (ClipboardManager) this
+                            .getSystemService(Context.CLIPBOARD_SERVICE);
+                    clipboardManager.setPrimaryClip(ClipData.newPlainText("label", text));
+                    inputwindow.performAction(AccessibilityNodeInfo.ACTION_PASTE);
+                }
+                break;
             //记录文字变化
             case AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED:
                 Log.d(TAG, "text is changed");
@@ -70,7 +108,7 @@ public class MyAccessibilityService extends AccessibilityService {
                     break;
                 }
                 CharSequence str = event.getText() != null && event.getText().size() > 0 ? event.getText().get(0) : null;
-                if (str != null && !str.toString().equals("发送消息") && !str.toString().equals("发消息...")) {
+                if (str == null || !str.toString().equals("发送消息") && !str.toString().equals("发消息...")) {
                     text = str;
                 }
                 break;
@@ -187,6 +225,24 @@ public class MyAccessibilityService extends AccessibilityService {
                 break;
         }
         return name;
+    }
+
+    private void initSensitive() {
+        sensitives.add("test");
+        sensitives.add("ok");
+        sensitives.add("qwer");
+        sensitives.add("1111");
+        sensitives.add("12345");
+    }
+
+    private void selectInputwindow(AccessibilityNodeInfo inputwindow, int contentLength) {
+        if (inputwindow == null) {
+            return;
+        }
+        Bundle arguments = new Bundle();
+        arguments.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_START_INT, 0);
+        arguments.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_END_INT, contentLength);
+        inputwindow.performAction(AccessibilityNodeInfo.ACTION_SET_SELECTION, arguments);
     }
 
     /**
