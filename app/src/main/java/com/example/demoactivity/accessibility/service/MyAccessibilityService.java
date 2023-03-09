@@ -15,13 +15,11 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.collection.ArraySet;
 
 import com.example.demoactivity.accessibility.ui.AccessibilityActivity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class MyAccessibilityService extends AccessibilityService {
 
@@ -29,6 +27,12 @@ public class MyAccessibilityService extends AccessibilityService {
     private static final String APP_PACKAGE_NAME1 = "com.ss.android.ugc.aweme.lite";//抖音极速版
     private static final String APP_PACKAGE_NAME2 = "com.ss.android.ugc.live";//抖音火山版
     private static final String APP_PACKAGE_NAME3 = "com.tencent.mm";//微信
+
+    private static final String DY_CHAT_NAME_ITEM = "com.bytedance.ies.dmt.ui.widget.DmtTextView";
+    private static final String DY_CHAT_EDIT_ITEM = "android.widget.EditText";
+    private static final String DY_CHAT_LIST_ITEM = "androidx.recyclerview.widget.RecyclerView";
+
+    private static boolean isInput = false;
 
     private static final List<String> sensitives = new ArrayList<>();
     private static final List<String> apps = new ArrayList<>();
@@ -67,14 +71,14 @@ public class MyAccessibilityService extends AccessibilityService {
         int eventType = event.getEventType();
         Log.d(TAG, "eventType is = " + eventType);
         AccessibilityNodeInfo root = this.getRootInActiveWindow();
-        AccessibilityNodeInfo chatView = null;
+        boolean chatView = false;
         if (root != null){
             chatView = inChatWindow(root);
         }
         switch (eventType) {
             case AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED:
                 Log.d(TAG, "view text changed");
-                if (chatView == null) {
+                if (!chatView) {
                     //非聊天界面不处理
                     break;
                 }
@@ -85,50 +89,64 @@ public class MyAccessibilityService extends AccessibilityService {
                 if (text != null && sensitives.contains(text.toString())) {
                     text = "****";
                     Log.d(TAG, "contain sensitive word");
+                    AccessibilityNodeInfo inputwindow = event.getSource();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        Bundle arguments = new Bundle();
+                        arguments.putCharSequence(
+                                AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text);
+                        inputwindow.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
+                        inputwindow.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments);
+                    } else {
+                        selectInputwindow(inputwindow, text.length());
+                        ClipboardManager clipboardManager = (ClipboardManager) this
+                                .getSystemService(Context.CLIPBOARD_SERVICE);
+                        clipboardManager.setPrimaryClip(ClipData.newPlainText("label", text));
+                        inputwindow.performAction(AccessibilityNodeInfo.ACTION_PASTE);
+                    }
                 }
-                AccessibilityNodeInfo inputwindow = event.getSource();
-                if (Build.VERSION.SDK_INT >= 21) {
-                    Bundle arguments = new Bundle();
-                    arguments.putCharSequence(
-                            AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text);
-                    inputwindow.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments);
-                } else {
-                    selectInputwindow(inputwindow, text.length());
-                    ClipboardManager clipboardManager = (ClipboardManager) this
-                            .getSystemService(Context.CLIPBOARD_SERVICE);
-                    clipboardManager.setPrimaryClip(ClipData.newPlainText("label", text));
-                    inputwindow.performAction(AccessibilityNodeInfo.ACTION_PASTE);
-                }
+                isInput = true;
                 break;
             //记录文字变化
             case AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED:
                 Log.d(TAG, "text is changed");
-                if (chatView == null) {
+                if (!chatView) {
                     //非聊天界面不处理
                     break;
                 }
                 CharSequence str = event.getText() != null && event.getText().size() > 0 ? event.getText().get(0) : null;
-                if (str == null || !str.toString().equals("发送消息") && !str.toString().equals("发消息...")) {
-                    text = str;
+                if (!isInput && str != null
+                        && (str.toString().equals("发送消息") || str.toString().equals("发消息..."))) {
+                    String chatFri = getChatName(root);
+                    if (chatFri != null) {
+                        AccessibilityActivity.setLabel(chatFri, text.toString(), getAppPackageName());
+                        text = "";
+                    }
                 }
+                isInput = false;
                 break;
-                //当页面滑动时，处理是否是对应处理事件
             case AccessibilityEvent.TYPE_VIEW_SCROLLED:
-                Log.d(TAG, "click view");
-                if (chatView == null) {
-                    text = "";
-                    break;
-                }
-                if (TextUtils.isEmpty(text)){
-                    break;
-                }
-                AccessibilityNodeInfo chatFri = getChatName(root);
-                if (chatFri != null) {
-                    String friendName = getStr(chatFri.getText());
-                    AccessibilityActivity.setLabel(friendName, text.toString(), getAppPackageName());
-                    text = "";
-                }
-                break;
+                text = getEditTextStr(root);
+                Log.d(TAG, "text is =" + text);
+//                Log.d(TAG, "click view");
+//                if (!chatView) {
+//                    text = "";
+//                    break;
+//                }
+//                if (TextUtils.isEmpty(text)){
+//                    break;
+//                }
+//                if (!isInput) {
+//                    break;
+//                }
+//                String chatFri = getChatName(root);
+//                if (chatFri != null) {
+//                    AccessibilityActivity.setLabel(chatFri, text.toString(), getAppPackageName());
+//                    text = "";
+//                }
+//                break;
+//            case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
+//                isInput = false;
+//                break;
         }
     }
 
@@ -139,24 +157,24 @@ public class MyAccessibilityService extends AccessibilityService {
         return charSequence.toString();
     }
 
-    private AccessibilityNodeInfo inChatWindow(AccessibilityNodeInfo root) {
+    private boolean inChatWindow(AccessibilityNodeInfo root) {
         if (root == null) {
-            return null;
+            return false;
         }
         if (packName == null) {
-            return null;
+            return false;
         }
         List<AccessibilityNodeInfo> chatList = null;
+        boolean isInChat = false;
         //聊天界面id
         switch (packName) {
             case APP_PACKAGE_NAME:
-                chatList = root.findAccessibilityNodeInfosByViewId("com.ss.android.ugc.aweme:id/pkg");
-                break;
             case APP_PACKAGE_NAME1:
-                chatList = root.findAccessibilityNodeInfosByViewId("com.ss.android.ugc.aweme.lite:id/au-");
+                isInChat = getDouYinChatView(root);
                 break;
             case APP_PACKAGE_NAME2:
-                chatList = root.findAccessibilityNodeInfosByViewId("com.ss.android.ugc.live:id/al8");
+//                chatList = root.findAccessibilityNodeInfosByViewId("com.ss.android.ugc.live:id/al8");
+                isInChat = getDouYinChatView1(root);
                 break;
             case APP_PACKAGE_NAME3:
                 chatList = root.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/b79");
@@ -164,13 +182,10 @@ public class MyAccessibilityService extends AccessibilityService {
             default:
                 break;
         }
-        if (chatList == null || chatList.size() <= 0) {
-            return null;
-        }
-        return chatList.get(0);
+        return isInChat;
     }
 
-    private AccessibilityNodeInfo getChatName(AccessibilityNodeInfo root) {
+    private String getChatName(AccessibilityNodeInfo root) {
         if (root == null) {
             return null;
         }
@@ -178,16 +193,15 @@ public class MyAccessibilityService extends AccessibilityService {
             return null;
         }
         List<AccessibilityNodeInfo> nameList = null;
+        String name = null;
         //聊天好友名称
         switch (packName) {
             case APP_PACKAGE_NAME:
-                nameList = root.findAccessibilityNodeInfosByViewId("com.ss.android.ugc.aweme:id/bi");
-                break;
             case APP_PACKAGE_NAME1:
-                nameList = root.findAccessibilityNodeInfosByViewId("com.ss.android.ugc.aweme.lite:id/qd");
+                name = getDouYinChatFriName(root);
                 break;
             case APP_PACKAGE_NAME2:
-                nameList = root.findAccessibilityNodeInfosByViewId("com.ss.android.ugc.live:id/title");
+//                nameList = root.findAccessibilityNodeInfosByViewId("com.ss.android.ugc.live:id/title");
                 break;
             case APP_PACKAGE_NAME3:
                 nameList = root.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/ko4");
@@ -195,10 +209,8 @@ public class MyAccessibilityService extends AccessibilityService {
             default:
                 break;
         }
-        if (nameList == null || nameList.size() <= 0) {
-            return null;
-        }
-        return nameList.get(0);
+
+        return name;
     }
 
     private String getAppPackageName() {
@@ -243,6 +255,169 @@ public class MyAccessibilityService extends AccessibilityService {
         arguments.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_START_INT, 0);
         arguments.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_END_INT, contentLength);
         inputwindow.performAction(AccessibilityNodeInfo.ACTION_SET_SELECTION, arguments);
+    }
+
+    private boolean getDouYinChatView1(AccessibilityNodeInfo root) {
+        if (root == null) {
+            return false;
+        }
+        //android.widget.RelativeLayout
+        AccessibilityNodeInfo child = root.getChild(0);
+        for (int a = 0; a < child.getChildCount(); a++) {
+            printNodeInfo(child.getChild(a), a);
+        }
+        //android.widget.TextView
+        AccessibilityNodeInfo name = child.getChild(1);
+        Log.d(TAG, "name is =" + name.getText());
+        //androidx.recyclerview.widget.RecyclerView
+        AccessibilityNodeInfo list = child.getChild(3);
+        if (!DY_CHAT_LIST_ITEM.equals(list.getClassName().toString())) {
+            return false;
+        }
+        //android.widget.LinearLayout
+        AccessibilityNodeInfo ll = child.getChild(4);
+        for (int i = 0; i < ll.getChildCount() ; i ++) {
+            printNodeInfo(ll.getChild(i), i);
+        }
+//        if (root.getChildCount() < 2) {
+//            //表明不是在聊天界面
+//            return false;
+//        }
+//        AccessibilityNodeInfo child = root.getChild(1);
+//        if (child == null || child.getChildCount() < 10) {
+//            //表明当前页面不是聊天界面
+//            return false;
+//        }
+//        AccessibilityNodeInfo child1 = child.getChild(0);
+//        if (child1 == null || child1.getContentDescription() == null
+//                || !child1.getContentDescription().equals("返回")) {
+//            //表明当前页面不是聊天界面
+//            return false;
+//        }
+////        printNodeInfo(root);
+//        //com.bytedance.ies.dmt.ui.widget.DmtTextView 聊天好友姓名
+//        AccessibilityNodeInfo firNames = child.getChild(1);
+//        if (firNames == null || !DY_CHAT_NAME_ITEM.equals(firNames.getClassName().toString())) {
+//            return false;
+//        }
+//        printNodeInfo(firNames, 0);
+//        String content = firNames.getContentDescription().toString();
+//        if (TextUtils.isEmpty(content)) {
+//            return false;
+//        }
+//        String[] split = content.split(",");
+//        if (split.length == 0) {
+//            return false;
+//        }
+//        Log.d(TAG, "chat name is :" + split[0]);
+
+//        printNodeInfo(firNames, 0);
+//        for (int i = 0; i < child.getChildCount() ; i ++) {
+//            printNodeInfo(child.getChild(i), i);
+//        }
+        return true;
+    }
+
+    private boolean getDouYinChatView(AccessibilityNodeInfo root) {
+        if (root == null) {
+            return false;
+        }
+        if (root.getChildCount() < 2) {
+            //表明不是在聊天界面
+            return false;
+        }
+        AccessibilityNodeInfo child = root.getChild(1);
+        if (child == null || child.getChildCount() < 10) {
+            //表明当前页面不是聊天界面
+            return false;
+        }
+        AccessibilityNodeInfo child1 = child.getChild(0);
+        if (child1 == null || child1.getContentDescription() == null
+                || !child1.getContentDescription().equals("返回")) {
+            //表明当前页面不是聊天界面
+            return false;
+        }
+        return true;
+    }
+
+    private boolean getDouYinLiveChatView(AccessibilityNodeInfo root){
+        if (root == null) {
+            return false;
+        }
+        AccessibilityNodeInfo child = root.getChild(0);
+        if (child.getChildCount() < 5) {
+            //表明不是在聊天界面
+            return false;
+        }
+        return true;
+    }
+
+    private String getDouYinChatFriName(AccessibilityNodeInfo root) {
+        if (root == null) {
+            return null;
+        }
+        if (root.getChildCount() < 2) {
+            //表明不是在聊天界面
+            return null;
+        }
+        AccessibilityNodeInfo child = root.getChild(1);
+        if (child == null || child.getChildCount() < 10) {
+            //表明当前页面不是聊天界面
+            return null;
+        }
+        AccessibilityNodeInfo child1 = child.getChild(0);
+        if (child1 == null || child1.getContentDescription() == null
+                || !child1.getContentDescription().equals("返回")) {
+            //表明当前页面不是聊天界面
+            return null;
+        }
+//        printNodeInfo(root);
+        //com.bytedance.ies.dmt.ui.widget.DmtTextView 聊天好友姓名
+        AccessibilityNodeInfo firNames = child.getChild(1);
+        String content = firNames.getContentDescription().toString();
+        if (TextUtils.isEmpty(content)) {
+            return null;
+        }
+        String[] split = content.split(",");
+        if (split.length == 0) {
+            return null;
+        }
+        return split[0];
+    }
+
+    private String getEditTextStr(AccessibilityNodeInfo root) {
+        if (root == null) {
+            return null;
+        }
+        if (root.getChildCount() < 2) {
+            //表明不是在聊天界面
+            return null;
+        }
+        AccessibilityNodeInfo child = root.getChild(1);
+        if (child == null || child.getChildCount() < 10) {
+            //表明当前页面不是聊天界面
+            return null;
+        }
+        AccessibilityNodeInfo child1 = child.getChild(0);
+        if (child1 == null || child1.getContentDescription() == null
+                || !child1.getContentDescription().equals("返回")) {
+            //表明当前页面不是聊天界面
+            return null;
+        }
+        AccessibilityNodeInfo child2 = child.getChild(child.getChildCount() - 3);
+        if (child2 == null || !DY_CHAT_EDIT_ITEM.equals(child2.getClassName().toString())) {
+            return null;
+        }
+
+        return child2.getText().toString();
+    }
+
+    private void printNodeInfo(AccessibilityNodeInfo root, int index) {
+        Log.d(TAG, "rootView id is:" + root.getViewIdResourceName() + ";\n"
+                + "rootView class is:" + root.getClassName() + ";\n"
+                + "rootView content is:" + root.getContentDescription() + ";\n"
+                + "rootView size is:" + root.getChildCount() + ";\n"
+                + "rooView index is:" + index + ";");
     }
 
     /**
