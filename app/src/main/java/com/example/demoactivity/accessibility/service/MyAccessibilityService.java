@@ -296,7 +296,7 @@ public class MyAccessibilityService extends AccessibilityService {
             return false;
         }
         AccessibilityNodeInfo child = root.getChild(0);
-        if (child.getChildCount() < 5) {
+        if (child == null || child.getChildCount() < 5) {
             //表明不是在聊天界面
             return false;
         }
@@ -306,6 +306,7 @@ public class MyAccessibilityService extends AccessibilityService {
         if (chat == null || !DY_CHAT_LIST_ITEM.equals(chat.getClassName().toString())) {
             return false;
         }
+        printNodeInfo(chat, 0);
         return true;
     }
 
@@ -347,7 +348,7 @@ public class MyAccessibilityService extends AccessibilityService {
             return null;
         }
         AccessibilityNodeInfo child = root.getChild(0);
-        if (child.getChildCount() < 5) {
+        if (child == null || child.getChildCount() < 5) {
             //表明不是在聊天界面
             return null;
         }
@@ -427,7 +428,7 @@ public class MyAccessibilityService extends AccessibilityService {
             return null;
         }
         AccessibilityNodeInfo child = root.getChild(0);
-        if (child.getChildCount() < 5) {
+        if (child == null || child.getChildCount() < 5) {
             //表明不是在聊天界面
             return null;
         }
