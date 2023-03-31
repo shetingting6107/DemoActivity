@@ -284,7 +284,7 @@ public class MyAccessibilityService extends AccessibilityService {
         }
         AccessibilityNodeInfo child1 = child.getChild(0);
         if (child1 == null || child1.getContentDescription() == null
-                || !child1.getContentDescription().equals("返回")) {
+                || !String.valueOf(child1.getContentDescription()).contains("返回")) {
             //表明当前页面不是聊天界面
             return false;
         }
@@ -325,7 +325,7 @@ public class MyAccessibilityService extends AccessibilityService {
         }
         AccessibilityNodeInfo child1 = child.getChild(0);
         if (child1 == null || child1.getContentDescription() == null
-                || !child1.getContentDescription().equals("返回")) {
+                || !String.valueOf(child1.getContentDescription()).contains("返回")) {
             //表明当前页面不是聊天界面
             return null;
         }
@@ -410,7 +410,7 @@ public class MyAccessibilityService extends AccessibilityService {
 
         AccessibilityNodeInfo child1 = child.getChild(0);
         if (child1 == null || child1.getContentDescription() == null
-                || !child1.getContentDescription().equals("返回")) {
+                || !String.valueOf(child1.getContentDescription()).contains("返回")) {
             //表明当前页面不是聊天界面
             return null;
         }
@@ -420,7 +420,12 @@ public class MyAccessibilityService extends AccessibilityService {
             return null;
         }
 
-        return child2.getText().toString();
+        String edit = child2.getText().toString();
+        if (edit.equals("发送消息") || edit.equals("发消息...")) {
+            edit = null;
+        }
+
+        return edit;
     }
 
     private String getDouYinLiveEditText(AccessibilityNodeInfo root) {
