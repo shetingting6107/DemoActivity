@@ -1,0 +1,39 @@
+//ContentProvider应用程序间的数据共享
+ContentProvider(数据提供者)是应用程序之间共享数据的一种接口机制，是一种更为高级的数据共享方法。
+▪ ContentProvider可以指定需要共享的数据，而其他应用程序则可以在不知道数据来源、路径的情况下，对共享数据进行增删改查等操作。
+▪ 在Android系统中，许多Android系统内置的数据也是通过ContentProvider提供给用户使用，例如通讯录、音视频文件和图像文件
+▪ 在ContentResolver对象与ContentProvider进行交互时，通过URI确定要访问的ContentProvider数据集。一般情况下只有一个ContentProvider对象，但却可以同时与多个ContentResolver进行交互。
+▪ ContentProvider完全屏蔽了底层数据源的数据存储方法。使用者只要调用ContentProvider提供的接口函数，即可完成所有的数据操作。
+▪ ContentProvider的数据集类似于数据库的数据表，每行是一条记录，每列具有相同的数据类型。每条记录都包含一个长整型的字段 _ID，用来唯一标识每条记录。ContentProvider可以提供多个数据集，调用者使用URI对不同数据集的数据进行操作。
+
+URI:
+URI是一个用于标识某一互联网资源名称的字符串。 该种标识允许用户对任何（包括本地和互联网）的资源通过特定的协议进行交互操作。在ContentProvider机制中，使用ContentResolver对象通过URI定位ContentProvider提供的资源。
+ContentProvider使用的URI语法结构如下：
+content://<authority>/<data_path>/<id>
+
+content:// 是通用前缀，表示该UIR用于ContentProvider定位资源。
+<authority> 是授权者名称，用来确定具体由哪一个ContentProvider提供资源。因此一般< authority >都由类的小写全称组成，以保证唯一性。
+<data_path> 是数据路径，用来确定请求的是哪个数据集。如果ContentProvider近提供一个数据集，数据路径则可以省略；如果ContentProvider提供多个数据集，数据路径必须指明具体数据集。数据集的数据路径可以写成多段格式，例如people/girl和people/boy。
+<id> 是数据编号，用来唯一确定数据集中的一条记录，匹配数据集中_ID字段的值。如果请求的数据不只一条，< id >可以省略。
+例：content://com.example.demoactivity/demo/1
+
+数据提供者（ContentProvider）
+1. 创建一个类让其继承ContentProvider，并重载6个函数
+onCreate()
+一般用来初始化底层数据集和建立数据连接等工作
+getType()
+用来返回指定URI的MIME数据类型，若URI是单条数据，则返回的MIME数据类型以vnd.android.cursor.item开头；若URI是多条数据，则返回的MIME数据类型以vnd.android.cursor.dir/开头。
+insert()、delete()、update()、query()
+用于对数据集的增删改查操作。
+2. 声明CONTENT_URI，实现UriMatcher
+UriMatcher本质上是一个文本过滤器，用在contentProvider中帮助我们过滤，分辨出查询者想要查询哪个数据表。
+3. 注册ContentProvider
+在AndroidManifest.xml文件中的 application节点下使用<provider>标签注册。
+
+数据使用者（ContentResolver）
+1.通过context.getContentResolver获取
+2.配置contentProvider对应的URI以及表头，使用insert、delete、update、query对数据库表进行增删改查的操作。
+
+详细代码见demo。contentResolver代码见ContentResolverDemo项目代码。
+
+
