@@ -14,6 +14,7 @@ import com.blankj.utilcode.util.PathUtils;
 import com.elvishew.xlog.BuildConfig;
 import com.elvishew.xlog.LogConfiguration;
 import com.elvishew.xlog.LogLevel;
+import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.elvishew.xlog.flattener.DefaultFlattener;
 import com.elvishew.xlog.formatter.border.DefaultBorderFormatter;
@@ -30,13 +31,7 @@ import com.elvishew.xlog.printer.file.FilePrinter;
 import com.elvishew.xlog.printer.file.backup.NeverBackupStrategy;
 import com.elvishew.xlog.printer.file.clean.FileLastModifiedCleanStrategy;
 import com.elvishew.xlog.printer.file.naming.DateFileNameGenerator;
-import com.elvishew.xlog.printer.file.naming.FileNameGenerator;
 import com.example.demoactivity.R;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 
 public class XlogActivity extends AppCompatActivity {
 
@@ -52,7 +47,8 @@ public class XlogActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_xlog);
         initLog2();
-//        initView();
+        initView();
+        printTest();
     }
 
     private void initView() {
@@ -185,19 +181,19 @@ public class XlogActivity extends AppCompatActivity {
                 .build();
 
         Printer androidPrinter = new AndroidPrinter(true);         // 通过 android.util.Log 打印日志的打印器
-        Printer consolePrinter = new ConsolePrinter();             // 通过 System.out 打印日志到控制台的打印器
+//        Printer consolePrinter = new ConsolePrinter();             // 通过 System.out 打印日志到控制台的打印器
         Printer filePrinter = new FilePrinter                      // 打印日志到文件的打印器
                 .Builder(PathUtils.getExternalAppCachePath() + "/log/")                             // 指定保存日志文件的路径
-                .fileNameGenerator(new FileName())        // 指定日志文件名生成器，默认为 ChangelessFileNameGenerator("log")
+                .fileNameGenerator(new FileNameConfig())        // 指定日志文件名生成器，默认为 ChangelessFileNameGenerator("log")
                 .backupStrategy(new NeverBackupStrategy())             // 指定日志文件备份策略，默认为 FileSizeBackupStrategy(1024 * 1024)
                 .cleanStrategy(new FileLastModifiedCleanStrategy(MAX_TIME))     // 指定日志文件清除策略，默认为 NeverCleanStrategy()
-                .flattener(new DefaultFlattener())                          // 指定日志平铺器，默认为 DefaultFlattener
+                .flattener(new MyFlattener())                          // 指定日志平铺器，默认为 DefaultFlattener
                 .build();
 
         XLog.init(                                                 // 初始化 XLog
                 config,                                                // 指定日志配置，如果不指定，会默认使用 new LogConfiguration.Builder().build()
                 androidPrinter,
-                consolePrinter,
+//                consolePrinter,
                 filePrinter);
 
         testLog();
@@ -218,27 +214,10 @@ public class XlogActivity extends AppCompatActivity {
         Intent intent = getIntent();
         XLog.d(intent);
     }
-}
 
-class FileName implements FileNameGenerator {
-
-    ThreadLocal<SimpleDateFormat> mLocalDateFormat = new ThreadLocal<SimpleDateFormat>() {
-
-        @Override
-        protected SimpleDateFormat initialValue() {
-            return new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-        }
-    };
-
-    @Override
-    public boolean isFileNameChangeable() {
-        return true;
-    }
-
-    @Override
-    public String generateFileName(int logLevel, long timestamp) {
-        SimpleDateFormat sdf = mLocalDateFormat.get();
-        sdf.setTimeZone(TimeZone.getDefault());
-        return sdf.format(new Date(timestamp)) + ".log";
+    private void printTest() {
+        Logger logger = XLog.tag("TAG-A")
+                .build();
+        logger.d("定制了TAG的消息");
     }
 }
