@@ -54,6 +54,42 @@ XLog.init(                                                 // 初始化 XLog
     consolePrinter,
     filePrinter);
 【tip：生成文件名称时需带上文件格式，不然生成的文件将无法正常打开】
+初始化后，一个拥有全局配置的全局 Logger 将被创建，所有对 XLog 的打印函数的调用都会被传递到这个全局 Logger 来进行打印。
+另外，你可以创建不限个数的、不同配置的 Logger。
+且可通过一次性打印或全局创建的XLog来打印在各处
+
+5.保存日志到文件
+要保存日志到文件，需创建一个FilePrinter
+Printer filePrinter = new FilePrinter                      // 打印日志到文件的打印器
+    .Builder("<日志目录全路径>")                             // 指定保存日志文件的路径
+    .fileNameGenerator(new DateFileNameGenerator())        // 指定日志文件名生成器，默认为 ChangelessFileNameGenerator("log")
+    .backupStrategy(new NeverBackupStrategy())             // 指定日志文件备份策略，默认为 FileSizeBackupStrategy(1024 * 1024)
+    .cleanStrategy(new FileLastModifiedCleanStrategy(MAX_TIME))     // 指定日志文件清除策略，默认为 NeverCleanStrategy()
+    .flattener(new MyFlattener())                          // 指定日志平铺器，默认为 DefaultFlattener
+    .build();
+并在初始化时添加上 XLog.init(config, filePrinter);
+或在创建非全局Logger时添加上 Logger logger = XLog.printer(filePrinter) ... .build();
+或在一次性打印时添加上 XLog.printer(filePrinter).d("用一次性配置打印的消息");
+
+6.保存第三方库打印的日志到文件
+可在初始化XLog后配置LibCat
+LibCat.config(true, filePrinter);
+
+【关于LibCat】
+拦截所有在APP代码中通过 android.util.log 直接打印的日志，并把这些日志重定向到指定的printer
+大多数情况下，LibCat 被用来拦截第三方模块/库的日志，并通过指定 FilePrinter，把这些日志保存到文件中
+1）build.gradle添加依赖
+implementation 'com.elvishew:xlog-libcat:1.0.0'
+2）在初始化APP时配置 LibCat.config(true, printer);
+
+7.自定义日志文件名
+使用 ChangelessFileNameGenerator，你可以指定一个不变的文件名
+使用 LevelFileNameGenerator，根据级别将日志保存到不同文件中
+使用 DateFileNameGenerator，根据日期将日志保存到不同文件中
+直接实现一个 FileNameGenerator，根据自定义的文件名生成规则来保存日志
+
+8.自定义日志格式
 
 
 详见：https://blog.csdn.net/qq_36611526/article/details/111469941
+https://github.com/elvishew/xLog/blob/master/README_ZH.md

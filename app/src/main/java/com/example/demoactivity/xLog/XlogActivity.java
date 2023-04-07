@@ -183,7 +183,7 @@ public class XlogActivity extends AppCompatActivity {
         Printer androidPrinter = new AndroidPrinter(true);         // 通过 android.util.Log 打印日志的打印器
 //        Printer consolePrinter = new ConsolePrinter();             // 通过 System.out 打印日志到控制台的打印器
         Printer filePrinter = new FilePrinter                      // 打印日志到文件的打印器
-                .Builder(PathUtils.getExternalAppCachePath() + "/log/")                             // 指定保存日志文件的路径
+                .Builder(PathUtils.getExternalStoragePath() + "/log/")                             // 指定保存日志文件的路径
                 .fileNameGenerator(new FileNameConfig())        // 指定日志文件名生成器，默认为 ChangelessFileNameGenerator("log")
                 .backupStrategy(new NeverBackupStrategy())             // 指定日志文件备份策略，默认为 FileSizeBackupStrategy(1024 * 1024)
                 .cleanStrategy(new FileLastModifiedCleanStrategy(MAX_TIME))     // 指定日志文件清除策略，默认为 NeverCleanStrategy()
@@ -195,6 +195,12 @@ public class XlogActivity extends AppCompatActivity {
                 androidPrinter,
 //                consolePrinter,
                 filePrinter);
+        //压缩日志文件
+//        try {
+//            LogUtils.compress(PathUtils.getExternalStoragePath() + "/log/", PathUtils.getExternalStoragePath() + "/log/");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         testLog();
     }
