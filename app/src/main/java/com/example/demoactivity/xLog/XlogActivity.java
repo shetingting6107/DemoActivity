@@ -1,5 +1,6 @@
 package com.example.demoactivity.xLog;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -29,7 +30,13 @@ import com.elvishew.xlog.printer.file.FilePrinter;
 import com.elvishew.xlog.printer.file.backup.NeverBackupStrategy;
 import com.elvishew.xlog.printer.file.clean.FileLastModifiedCleanStrategy;
 import com.elvishew.xlog.printer.file.naming.DateFileNameGenerator;
+import com.elvishew.xlog.printer.file.naming.FileNameGenerator;
 import com.example.demoactivity.R;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class XlogActivity extends AppCompatActivity {
 
@@ -44,8 +51,8 @@ public class XlogActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_xlog);
-        initLog1();
-        initView();
+        initLog2();
+//        initView();
     }
 
     private void initView() {
@@ -165,6 +172,35 @@ public class XlogActivity extends AppCompatActivity {
 //                consolePrinter,
                 filePrinter);
 
+        testLog();
+    }
+
+    private void initLog2() {
+        LogConfiguration config = new LogConfiguration.Builder()
+                .logLevel(LogLevel.ALL)          // 指定日志级别，低于该级别的日志将不会被打印，默认为 LogLevel.ALL
+                .tag("MY_TAG")                                         // 指定 TAG，默认为 "X-LOG"
+                .enableThreadInfo()                                    // 允许打印线程信息，默认禁止
+                .enableStackTrace(2)                                   // 允许打印深度为 2 的调用栈信息，默认禁止
+                .enableBorder()                                        // 允许打印日志边框，默认禁止
+                .build();
+
+        Printer androidPrinter = new AndroidPrinter(true);         // 通过 android.util.Log 打印日志的打印器
+        Printer consolePrinter = new ConsolePrinter();             // 通过 System.out 打印日志到控制台的打印器
+        Printer filePrinter = new FilePrinter                      // 打印日志到文件的打印器
+                .Builder(PathUtils.getExternalAppCachePath() + "/log/")                             // 指定保存日志文件的路径
+                .fileNameGenerator(new FileName())        // 指定日志文件名生成器，默认为 ChangelessFileNameGenerator("log")
+                .backupStrategy(new NeverBackupStrategy())             // 指定日志文件备份策略，默认为 FileSizeBackupStrategy(1024 * 1024)
+                .cleanStrategy(new FileLastModifiedCleanStrategy(MAX_TIME))     // 指定日志文件清除策略，默认为 NeverCleanStrategy()
+                .flattener(new DefaultFlattener())                          // 指定日志平铺器，默认为 DefaultFlattener
+                .build();
+
+        XLog.init(                                                 // 初始化 XLog
+                config,                                                // 指定日志配置，如果不指定，会默认使用 new LogConfiguration.Builder().build()
+                androidPrinter,
+                consolePrinter,
+                filePrinter);
+
+        testLog();
     }
 
     private void initLog1() {
@@ -178,5 +214,31 @@ public class XlogActivity extends AppCompatActivity {
         XLog.i("hello xlog");
         XLog.w("hello xlog");
         XLog.e("hello xlog");
+        XLog.d("你好%s, 我今年%d岁了", "Tom", 20);
+        Intent intent = getIntent();
+        XLog.d(intent);
+    }
+}
+
+class FileName implements FileNameGenerator {
+
+    ThreadLocal<SimpleDateFormat> mLocalDateFormat = new ThreadLocal<SimpleDateFormat>() {
+
+        @Override
+        protected SimpleDateFormat initialValue() {
+            return new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        }
+    };
+
+    @Override
+    public boolean isFileNameChangeable() {
+        return true;
+    }
+
+    @Override
+    public String generateFileName(int logLevel, long timestamp) {
+        SimpleDateFormat sdf = mLocalDateFormat.get();
+        sdf.setTimeZone(TimeZone.getDefault());
+        return sdf.format(new Date(timestamp)) + ".log";
     }
 }

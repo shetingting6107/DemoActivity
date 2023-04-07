@@ -1,6 +1,59 @@
 Xlog 使用教程
-1.添加依赖 implementation 'com.elvishew:xlog:1.7.2'
+1.添加依赖 implementation 'com.elvishew:xlog:1.10.1'
 
 2.Xlog 初始化 Xlog.init()
+
+3.打印日志
+XLog.d("你好 xLog");
+可打印简单的消息——XLog.d(message);
+打印带throwable的消息，通常用于有异常抛出时——XLog.e(message, throwable);
+支持格式化字符串，这样就不用使用【+】拼接一大串字符串和变量——XLog.d("你好%s, 我今年%d岁了", "Tom", 20);
+未格式化的JSON和XML字符串会被自动格式化——XLog.json(JSON_CONTENT); XLog.xml(XML_CONTENT);
+支持所有的 Collection 和 Map 类型的数据——XLog.d(array); XLog.d(list); XLog.d(map);
+也可以直接打印 Intent 和 Bundle 对象——XLog.d(intent); XLog.d(bundle);
+可以打印任何类型的对象。你甚至可以为不同类型指定不同的 ObjectFormatter，如不指定，在对象转换为字符串时，会直接调用对象类型的 toString()——XLog.d(object);
+
+4.配置
+当初始化时，可以用最简单的方法：
+XLog.init(LogLevel.ALL);
+也可用高级的方式：
+LogConfiguration config = new LogConfiguration.Builder()
+    .logLevel(BuildConfig.DEBUG ? LogLevel.ALL             // 指定日志级别，低于该级别的日志将不会被打印，默认为 LogLevel.ALL
+        : LogLevel.NONE)
+    .tag("MY_TAG")                                         // 指定 TAG，默认为 "X-LOG"
+    .enableThreadInfo()                                    // 允许打印线程信息，默认禁止
+    .enableStackTrace(2)                                   // 允许打印深度为 2 的调用栈信息，默认禁止
+    .enableBorder()                                        // 允许打印日志边框，默认禁止
+    .jsonFormatter(new MyJsonFormatter())                  // 指定 JSON 格式化器，默认为 DefaultJsonFormatter
+    .xmlFormatter(new MyXmlFormatter())                    // 指定 XML 格式化器，默认为 DefaultXmlFormatter
+    .throwableFormatter(new MyThrowableFormatter())        // 指定可抛出异常格式化器，默认为 DefaultThrowableFormatter
+    .threadFormatter(new MyThreadFormatter())              // 指定线程信息格式化器，默认为 DefaultThreadFormatter
+    .stackTraceFormatter(new MyStackTraceFormatter())      // 指定调用栈信息格式化器，默认为 DefaultStackTraceFormatter
+    .borderFormatter(new MyBoardFormatter())               // 指定边框格式化器，默认为 DefaultBorderFormatter
+    .addObjectFormatter(AnyClass.class,                    // 为指定类型添加对象格式化器
+        new AnyClassObjectFormatter())                     // 默认使用 Object.toString()
+    .addInterceptor(new BlacklistTagsFilterInterceptor(    // 添加黑名单 TAG 过滤器
+        "blacklist1", "blacklist2", "blacklist3"))
+    .addInterceptor(new MyInterceptor())                   // 添加一个日志拦截器
+    .build();
+
+Printer androidPrinter = new AndroidPrinter(true);         // 通过 android.util.Log 打印日志的打印器
+Printer consolePrinter = new ConsolePrinter();             // 通过 System.out 打印日志到控制台的打印器
+Printer filePrinter = new FilePrinter                      // 打印日志到文件的打印器
+    .Builder("<日志目录全路径>")                             // 指定保存日志文件的路径
+    .fileNameGenerator(new DateFileNameGenerator())        // 指定日志文件名生成器，默认为 ChangelessFileNameGenerator("log")
+    .backupStrategy(new NeverBackupStrategy())             // 指定日志文件备份策略，默认为 FileSizeBackupStrategy(1024 * 1024)
+    .cleanStrategy(new FileLastModifiedCleanStrategy(MAX_TIME))     // 指定日志文件清除策略，默认为 NeverCleanStrategy()
+    .flattener(new MyFlattener())                          // 指定日志平铺器，默认为 DefaultFlattener
+    .writer(new MyWriter())                                // 指定日志写入器，默认为 SimpleWriter
+    .build();
+
+XLog.init(                                                 // 初始化 XLog
+    config,                                                // 指定日志配置，如果不指定，会默认使用 new LogConfiguration.Builder().build()
+    androidPrinter,                                        // 添加任意多的打印器。如果没有添加任何打印器，会默认使用 AndroidPrinter(Android)/ConsolePrinter(java)
+    consolePrinter,
+    filePrinter);
+【tip：生成文件名称时需带上文件格式，不然生成的文件将无法正常打开】
+
 
 详见：https://blog.csdn.net/qq_36611526/article/details/111469941
