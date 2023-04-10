@@ -37,6 +37,12 @@
             android:launchMode="singleTask"
             android:theme="@style/AppTheme"/>
 
+        <activity android:name=".mvvm.UserInfoActivity"
+            android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme"/>
+
         <activity android:name=".content.observer.DemoObserverActivity"
             android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
             android:exported="true"

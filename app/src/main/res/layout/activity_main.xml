@@ -63,6 +63,21 @@
             android:textColor="@color/color_black"
             android:textSize="15sp"/>
 
+        <TextView
+            android:id="@+id/tv_mvvm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/color_dark_gray"
+            android:layout_toEndOf="@+id/tv_content"
+            android:layout_marginStart="10dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="MVVM"
+            android:textColor="@color/color_black"
+            android:textSize="15sp"/>
+
 
     </RelativeLayout>
 

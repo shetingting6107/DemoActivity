@@ -1,7 +1,5 @@
 package com.example.demoactivity;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,9 +9,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.demoactivity.accessibility.ui.AccessibilityActivity;
 import com.example.demoactivity.content.observer.DemoObserverActivity;
-import com.example.demoactivity.content.resolver.ContentResolverActivity;
+import com.example.demoactivity.mvvm.UserInfoActivity;
 import com.example.demoactivity.xLog.XlogActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -49,6 +49,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, DemoObserverActivity.class);
+                startActivity(intent);
+            }
+        });
+        TextView tv_mvvm = findViewById(R.id.tv_mvvm);
+        tv_mvvm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, UserInfoActivity.class);
                 startActivity(intent);
             }
         });

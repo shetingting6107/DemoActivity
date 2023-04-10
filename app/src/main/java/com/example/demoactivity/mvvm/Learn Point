@@ -1,0 +1,21 @@
+1.引入DataBinding框架，在app下的build.gradle下添加
+dataBinding {
+     enabled = true
+}
+如此便可以使用DataBinding框架了
+
+2.编辑实体类，即model类型数据——实例见userInfo
+编写view类，即页面视图布局文件——实例见activity_user_info.xml
+此处注意最外层的<layout>,在此之下有一个<data>,<data>标签中对应了model层中的实体类。
+此处的实体类取了个别名为user，下面都是正常的布局。
+注意一点是TextView的text属性，使用了@{user.name}和@{user.sex},
+这里实现了数据与UI层的绑定，当userInfo实体类中数据发生变化时，两个绑定的TextView也会自动更新变化。
+编写activity类——实例见UserInfoActivity
+由于布局文件名字为activity_user_info.xml，所以使用DataBindingUtil创建一个ActivityUserInfoBinding对象，再调用set方法就可以设置数据了
+【DataBindingUtil.setContentView】
+
+3.在UserInfoActivity中，编写了方法clickName，用于点击按钮更新userInfo，使用set方法配置。setXX，XX为在xml文件中配置的名称，此处为【user】
+在对应的布局文件中配置了更新方法clickName，【onClick】对应配置的更新方法。
+
+4.使用mvvm模式，布局会显得简单。且页面数据变化时，model实体类的数据就会更新，且去更新实体类中的数据时，UI页面也会随着更新，这就是数据双向绑定的效果。
+
