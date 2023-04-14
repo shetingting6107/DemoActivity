@@ -27,44 +27,9 @@
             </intent-filter>
         </activity>
 
+<!--        ********************************* Accessiblity ***************************************-->
+
         <activity android:name=".accessibility.ui.AccessibilityActivity"
-            android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
-            android:exported="true"
-            android:launchMode="singleTask"
-            android:theme="@style/AppTheme"/>
-
-        <activity android:name=".xLog.XlogActivity"
-            android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
-            android:exported="true"
-            android:launchMode="singleTask"
-            android:theme="@style/AppTheme"/>
-
-        <activity android:name=".content.resolver.ContentResolverActivity"
-            android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
-            android:exported="true"
-            android:launchMode="singleTask"
-            android:theme="@style/AppTheme"/>
-
-        <activity android:name=".mvvm.UserInfoActivity"
-            android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
-            android:exported="true"
-            android:launchMode="singleTask"
-            android:theme="@style/AppTheme"/>
-
-        <activity android:name=".netWork.NetWorkActivity"
-            android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
-            android:exported="true"
-            android:launchMode="singleTask"
-            android:theme="@style/AppTheme"/>
-
-        <activity android:name=".wanandroid.WanAndroidMainActivity"
-            android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
-            android:exported="true"
-            android:launchMode="singleTask"
-            android:theme="@style/AppTheme"/>
-
-
-        <activity android:name=".content.observer.DemoObserverActivity"
             android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
             android:exported="true"
             android:launchMode="singleTask"
@@ -85,6 +50,68 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_config"/>
         </service>
+
+        <!--*********************************** Accessinility End *******************************-->
+
+        <!-- ********************************** Content ********************************************-->
+
+        <activity android:name=".content.resolver.ContentResolverActivity"
+            android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme"/>
+
+        <activity android:name=".content.observer.DemoObserverActivity"
+            android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme"/>
+
+        <provider
+            android:authorities="${applicationId}"
+            android:name=".content.provider.DemoProvider"
+            android:exported="true"/>
+
+        <!--*************************************** Content End ***********************************-->
+
+        <!--**************************************** XLog ******************************************-->
+        <activity android:name=".xLog.XlogActivity"
+            android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme"/>
+
+        <!--***************************************** XLog End *****************************************-->
+
+        <!--**************************************** mvvm **********************************************-->
+
+        <activity android:name=".mvvm.UserInfoActivity"
+            android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme"/>
+
+        <!-- ************************************** mvvm End *******************************************-->
+
+        <!--**************************************** netWork *********************************************-->
+
+        <activity android:name=".netWork.NetWorkActivity"
+            android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme"/>
+
+        <!--****************************************** network End ***********************************-->
+
+        <!--*************************************** wan Android *************************************-->
+
+        <activity android:name=".wanandroid.WanAndroidMainActivity"
+            android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme"/>
+
+        <!--*************************************** wan Android End ***********************************-->
 
 <!--        *************************** Intent ********************************************-->
 
@@ -111,11 +138,13 @@
             android:persistent="true"/>
 
         <!--***************************** Intent end *********************************************-->
-        
-        <provider
-            android:authorities="${applicationId}"
-            android:name=".content.provider.DemoProvider"
-            android:exported="true"/>
+
+        <activity android:name=".TestActivity"
+            android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme"/>
+
     </application>
 
 </manifest>

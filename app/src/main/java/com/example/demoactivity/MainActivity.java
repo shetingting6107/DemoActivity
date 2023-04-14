@@ -109,6 +109,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        TextView tv_test = findViewById(R.id.tv_test);
+        tv_test.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, TestActivity.class);
+                startActivity(intent);
+            }
+        });
+
     }
 
     private void initPermission() {
