@@ -105,7 +105,25 @@
 
         <!--*************************************** wan Android *************************************-->
 
+        <activity android:name=".wanandroid.base.BaseActivity"
+            android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme"/>
+
+        <activity android:name=".wanandroid.base.BaseActivity"
+            android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme"/>
+
         <activity android:name=".wanandroid.WanAndroidMainActivity"
+            android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme"/>
+
+        <activity android:name=".wanandroid.login.LoginActivity"
             android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
             android:exported="true"
             android:launchMode="singleTask"

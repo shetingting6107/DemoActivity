@@ -1,9 +1,11 @@
 package com.example.demoactivity.netWork.bean;
 
+import com.example.demoactivity.netWork.base.BaseBean;
+
 import java.io.Serializable;
 import java.util.List;
 
-public class ArticleBean {
+public class ArticleBean extends BaseBean {
 
     /**
      * {

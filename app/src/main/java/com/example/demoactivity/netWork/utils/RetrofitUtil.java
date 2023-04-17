@@ -31,7 +31,11 @@ public class RetrofitUtil {
     }
 
     public <T> T getApi(Class<T> tClass) {
-        Retrofit retrofit = createRetrofit();
+        Retrofit retrofit = new Retrofit.Builder().baseUrl(Constants.BASE_URL)
+                .client(getOkHttpClient())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
         return retrofit.create(tClass);
     }
 
@@ -45,16 +49,6 @@ public class RetrofitUtil {
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
             builder.addInterceptor(loggingInterceptor);
         }
-        return builder.build();
-    }
-
-    private Retrofit createRetrofit() {
-        Retrofit.Builder builder = new Retrofit.Builder();
-
-        builder.baseUrl(Constants.BASE_URL)
-                .client(getOkHttpClient())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create());
         return builder.build();
     }
 }

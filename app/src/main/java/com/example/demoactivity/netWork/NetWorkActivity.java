@@ -1,6 +1,8 @@
 package com.example.demoactivity.netWork;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -18,6 +20,10 @@ public class NetWorkActivity extends AppCompatActivity {
         WebView webView = findViewById(R.id.web_view);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.setWebViewClient(new WebViewClient());
-        webView.loadUrl("http://www.baidu.com");
+
+        Intent intent = getIntent();
+        String url = intent.getStringExtra("LINK_URL");
+        url = TextUtils.isEmpty(url) ? "http://www.baidu.com" : url;
+        webView.loadUrl(url);
     }
 }

@@ -1,7 +1,6 @@
 package com.example.demoactivity.netWork;
 
 import com.example.demoactivity.netWork.base.BaseResponse;
-import com.example.demoactivity.netWork.bean.ArticleListBean;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -15,5 +14,5 @@ public interface ApiServer {
      * @return 返回首页文章列表
      */
     @GET("/article/list/{page}/json")
-    Call<BaseResponse<ArticleListBean>> getMainArticleList(@Path("page") int page);
+    Call<BaseResponse> getMainArticleList(@Path("page") int page);
 }

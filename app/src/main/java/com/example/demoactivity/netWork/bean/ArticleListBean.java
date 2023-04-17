@@ -1,8 +1,10 @@
 package com.example.demoactivity.netWork.bean;
 
+import com.example.demoactivity.netWork.base.BaseBean;
+
 import java.util.List;
 
-public class ArticleListBean {
+public class ArticleListBean extends BaseBean {
 
     private int curPage;
     private int offset;

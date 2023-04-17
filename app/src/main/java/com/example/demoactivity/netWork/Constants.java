@@ -6,5 +6,9 @@ public class Constants {
 
     public static final int CODE_LOG_IN_FAILED = -1001;//登录失败code
 
+    public static final int CODE_NET_WORK_ERROR = 404;//网络连接失败
+
     public static final String BASE_URL = "https://www.wanandroid.com";
+
+
 }
