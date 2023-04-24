@@ -118,6 +118,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        TextView tv_intent = findViewById(R.id.tv_intent);
+        tv_intent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, com.example.demoactivity.intent.MainActivity.class);
+                startActivity(intent);
+            }
+        });
+
     }
 
     private void initPermission() {
