@@ -51,7 +51,11 @@ public class MainArticleAdapter extends RecyclerView.Adapter<MainArticleAdapter.
                 tags.append(tag.getName()).append(" + ");
             }
         }
-        holder.tv_tags.setText(tags.toString().substring(0, tags.toString().length() - 2));
+        if (tags.length() > 2) {
+            holder.tv_tags.setText(tags.toString().substring(0, tags.toString().length() - 2));
+        }else {
+            holder.tv_tags.setText("");
+        }
 
         holder.itemView.setOnClickListener(v -> {
             if (TextUtils.isEmpty(articleBean.getLink())) {

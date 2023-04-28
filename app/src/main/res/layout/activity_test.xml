@@ -38,4 +38,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
+    <Button
+        android:id="@+id/btn_top_activity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TOP_ACTIVITY"/>
+
+    <TextView
+        android:id="@+id/tv_top_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
 </LinearLayout>

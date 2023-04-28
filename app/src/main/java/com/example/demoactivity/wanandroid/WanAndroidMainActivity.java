@@ -59,7 +59,7 @@ public class WanAndroidMainActivity extends BaseActivity {
                 }
                 List<ArticleBean> articleList = articleListBean.getDatas();
                 List<ArticleBean> list = removeNullTags(articleList);
-                articleAdapter.setArticleList(list);
+                articleAdapter.setArticleList(articleList);
                 articleAdapter.notifyDataSetChanged();
             }
 
