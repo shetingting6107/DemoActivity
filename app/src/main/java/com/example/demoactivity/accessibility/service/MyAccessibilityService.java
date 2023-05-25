@@ -63,6 +63,9 @@ public class MyAccessibilityService extends AccessibilityService {
      */
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
+        if (event.getPackageName() == null) {
+            return;
+        }
         String packageName = event.getPackageName().toString();
         if (!apps.contains(packageName)) {
             return;//监听到的包不是对应的包则不处理
@@ -156,6 +159,7 @@ public class MyAccessibilityService extends AccessibilityService {
         switch (packName) {
             case APP_PACKAGE_NAME:
             case APP_PACKAGE_NAME1:
+//            case APP_PACKAGE_NAME2:
                 isInChat = getDouYinChatView(root);
                 break;
             case APP_PACKAGE_NAME2:
@@ -183,6 +187,7 @@ public class MyAccessibilityService extends AccessibilityService {
         switch (packName) {
             case APP_PACKAGE_NAME:
             case APP_PACKAGE_NAME1:
+//            case APP_PACKAGE_NAME2:
                 name = getDouYinChatFriName(root);
                 break;
             case APP_PACKAGE_NAME2:
@@ -306,7 +311,7 @@ public class MyAccessibilityService extends AccessibilityService {
         if (chat == null || !DY_CHAT_LIST_ITEM.equals(chat.getClassName().toString())) {
             return false;
         }
-        printNodeInfo(chat, 0);
+//        printNodeInfo(chat, 0);
         return true;
     }
 
@@ -381,6 +386,7 @@ public class MyAccessibilityService extends AccessibilityService {
         switch (packName) {
             case APP_PACKAGE_NAME:
             case APP_PACKAGE_NAME1:
+//            case APP_PACKAGE_NAME2:
                 edit = getDouYinEditText(root);
                 break;
             case APP_PACKAGE_NAME2:
