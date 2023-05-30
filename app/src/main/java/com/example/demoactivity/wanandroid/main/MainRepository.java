@@ -12,4 +12,11 @@ public class MainRepository extends BaseRepository {
     public void getMainArticleList(int page, HttpCallback callback) {
         apiServer.getMainArticleList(page).enqueue(callback);
     }
+
+    /**
+     * 获取首页banner
+     */
+    public void getBanner(HttpCallback callback) {
+        apiServer.getBanner().enqueue(callback);
+    }
 }

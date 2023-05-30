@@ -15,4 +15,11 @@ public interface ApiServer {
      */
     @GET("/article/list/{page}/json")
     Call<BaseResponse> getMainArticleList(@Path("page") int page);
+
+    /**
+     * 获取首页banner图片信息
+     * @return banner信息
+     */
+    @GET("/banner/json")
+    Call<BaseResponse> getBanner();
 }

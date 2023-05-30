@@ -11,9 +11,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.demoactivity.R;
 import com.example.demoactivity.netWork.HttpCallback;
-import com.example.demoactivity.netWork.base.BaseResponse;
 import com.example.demoactivity.netWork.bean.ArticleBean;
 import com.example.demoactivity.netWork.bean.ArticleListBean;
+import com.example.demoactivity.netWork.bean.BannerBean;
 import com.example.demoactivity.netWork.utils.JSONUtil;
 import com.example.demoactivity.wanandroid.base.BaseActivity;
 import com.example.demoactivity.wanandroid.main.MainArticleAdapter;
@@ -38,6 +38,8 @@ public class WanAndroidMainActivity extends BaseActivity {
     private int mTotalPage = 0;
     private int mCurrentPage = 0;
 
+    public static final String TAG = "WanAndroidMain";
+
     @Override
     public void initView() {
         swipeLayout = findViewById(R.id.swipe_layout);
@@ -55,9 +57,9 @@ public class WanAndroidMainActivity extends BaseActivity {
         //设置刷新监听事件
         swipeLayout.setOnRefreshListener(() -> mainRepository.getMainArticleList(0, new HttpCallback() {
             @Override
-            public void onSucceed(BaseResponse response) {
+            public void onSucceed(Object t) {
                 mPage = 0;
-                ArticleListBean articleListBean = JSONUtil.parseToArticleListBean(response.getData());
+                ArticleListBean articleListBean = JSONUtil.parseToArticleListBean(t);
                 if (articleListBean == null) {
                     onFailed(0, null);
                     return;
@@ -99,6 +101,7 @@ public class WanAndroidMainActivity extends BaseActivity {
     }
 
     private void initList() {
+        loadBanner();
         loadMore();
     }
 
@@ -120,8 +123,8 @@ public class WanAndroidMainActivity extends BaseActivity {
     private void loadMore() {
         mainRepository.getMainArticleList(mPage, new HttpCallback() {
             @Override
-            public void onSucceed(BaseResponse response) {
-                ArticleListBean articleListBean = JSONUtil.parseToArticleListBean(response.getData());
+            public void onSucceed(Object t) {
+                ArticleListBean articleListBean = JSONUtil.parseToArticleListBean(t);
                 if (articleListBean == null) {
                     onFailed(0, null);
                     return;
@@ -146,6 +149,25 @@ public class WanAndroidMainActivity extends BaseActivity {
         });
     }
 
+    private void loadBanner() {
+        mainRepository.getBanner(new HttpCallback() {
+            @Override
+            public void onSucceed(Object t) {
+                List<BannerBean> bannerList = (List<BannerBean>) t;
+                if (bannerList == null || bannerList.size() <= 0) {
+                    onFailed(0, "list is empty!");
+                    return;
+                }
+                Log.d(TAG, "banner list = " + bannerList);
+            }
+
+            @Override
+            public void onFailed(int code, String message) {
+                Toast.makeText(WanAndroidMainActivity.this, message != null ? message : "存在异常，请排查！", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     /**
      * RecyclerView 滑动监听器
      */
@@ -159,7 +181,7 @@ public class WanAndroidMainActivity extends BaseActivity {
             //当滑动到最后一个且停止滚动
             if (newState == RecyclerView.SCROLL_STATE_IDLE && lastItem + 1 == articleAdapter.getItemCount()
                     && mCurrentPage < 10) {
-                Log.d("ARTICLE", "load more article");
+                Log.d(TAG, "load more article");
                 Toast.makeText(WanAndroidMainActivity.this, "show more articles!", Toast.LENGTH_SHORT).show();
                 mPage += 1;
                 loadMore();

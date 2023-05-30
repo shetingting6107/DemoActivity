@@ -26,7 +26,7 @@ public abstract class HttpCallback implements Callback<BaseResponse> {
             //失败的情况
             onFailed(code, msg);
         }else {
-            onSucceed(body);
+            onSucceed(body.getData());
         }
     }
 
@@ -35,7 +35,7 @@ public abstract class HttpCallback implements Callback<BaseResponse> {
         onFailed(Constants.CODE_NET_WORK_ERROR, t.getMessage());
     }
 
-    public abstract void onSucceed(BaseResponse response);
+    public abstract void onSucceed(Object t);
 
     public abstract void onFailed(int code, String message);
 }
