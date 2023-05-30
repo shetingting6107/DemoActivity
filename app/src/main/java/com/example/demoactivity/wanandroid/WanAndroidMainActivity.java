@@ -1,8 +1,10 @@
 package com.example.demoactivity.wanandroid;
 
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -28,6 +30,14 @@ public class WanAndroidMainActivity extends BaseActivity {
     private RecyclerView articleListView;
     private MainArticleAdapter articleAdapter;
 
+    private LinearLayoutManager mLayoutManager;
+
+    private List<ArticleBean> mArticleList;
+
+    private int mPage = 0;
+    private int mTotalPage = 0;
+    private int mCurrentPage = 0;
+
     @Override
     public void initView() {
         swipeLayout = findViewById(R.id.swipe_layout);
@@ -43,36 +53,42 @@ public class WanAndroidMainActivity extends BaseActivity {
         //设置下拉刷新loading背景颜色
         swipeLayout.setProgressBackgroundColorSchemeColor(getResources().getColor(R.color.color_dark_gray));
         //设置刷新监听事件
-        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        swipeLayout.setOnRefreshListener(() -> mainRepository.getMainArticleList(0, new HttpCallback() {
             @Override
-            public void onRefresh() {
-                mainRepository.getMainArticleList(0, new HttpCallback() {
-                    @Override
-                    public void onSucceed(BaseResponse response) {
-                        ArticleListBean articleListBean = JSONUtil.parseToArticleListBean(response.getData());
-                        if (articleListBean == null) {
-                            onFailed(0, null);
-                            return;
-                        }
-                        List<ArticleBean> articleList = articleListBean.getDatas();
-                        List<ArticleBean> list = removeNullTags(articleList);
-                        articleAdapter.setArticleList(articleList);
-                        articleAdapter.notifyDataSetChanged();
-                        swipeLayout.setRefreshing(false);
-                    }
-
-                    @Override
-                    public void onFailed(int code, String message) {
-                        swipeLayout.setRefreshing(false);
-                        Toast.makeText(WanAndroidMainActivity.this, TextUtils.isEmpty(message) ? "文章内容为空！" : message, Toast.LENGTH_SHORT).show();
-                    }
-                });
+            public void onSucceed(BaseResponse response) {
+                mPage = 0;
+                ArticleListBean articleListBean = JSONUtil.parseToArticleListBean(response.getData());
+                if (articleListBean == null) {
+                    onFailed(0, null);
+                    return;
+                }
+                List<ArticleBean> articleList = articleListBean.getDatas();
+                mTotalPage = articleListBean.getPageCount();
+                mCurrentPage = articleListBean.getCurPage();
+                if (mCurrentPage <= 1) {
+                    mArticleList = articleList;
+                }else {
+                    mArticleList.addAll(articleList);
+                }
+//                List<ArticleBean> list = removeNullTags(articleList);
+                articleAdapter.setArticleList(mArticleList);
+                articleAdapter.notifyDataSetChanged();
+                swipeLayout.setRefreshing(false);
             }
-        });
+
+            @Override
+            public void onFailed(int code, String message) {
+                mPage = 0;
+                swipeLayout.setRefreshing(false);
+                Toast.makeText(WanAndroidMainActivity.this, TextUtils.isEmpty(message) ? "文章内容为空！" : message, Toast.LENGTH_SHORT).show();
+            }
+        }));
 
         articleAdapter = new MainArticleAdapter(this);
-        articleListView.setLayoutManager(new LinearLayoutManager(this));
+        mLayoutManager = new LinearLayoutManager(this);
+        articleListView.setLayoutManager(mLayoutManager);
         articleListView.setAdapter(articleAdapter);
+        articleListView.addOnScrollListener(onScrollListener);
 
         initList();
     }
@@ -83,25 +99,7 @@ public class WanAndroidMainActivity extends BaseActivity {
     }
 
     private void initList() {
-        mainRepository.getMainArticleList(0, new HttpCallback() {
-            @Override
-            public void onSucceed(BaseResponse response) {
-                ArticleListBean articleListBean = JSONUtil.parseToArticleListBean(response.getData());
-                if (articleListBean == null) {
-                    onFailed(0, null);
-                    return;
-                }
-                List<ArticleBean> articleList = articleListBean.getDatas();
-                List<ArticleBean> list = removeNullTags(articleList);
-                articleAdapter.setArticleList(articleList);
-                articleAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onFailed(int code, String message) {
-                Toast.makeText(WanAndroidMainActivity.this, TextUtils.isEmpty(message) ? "文章内容为空！" : message, Toast.LENGTH_SHORT).show();
-            }
-        });
+        loadMore();
     }
 
     private List<ArticleBean> removeNullTags(List<ArticleBean> beans) {
@@ -118,4 +116,64 @@ public class WanAndroidMainActivity extends BaseActivity {
 
         return beanList;
     }
+
+    private void loadMore() {
+        mainRepository.getMainArticleList(mPage, new HttpCallback() {
+            @Override
+            public void onSucceed(BaseResponse response) {
+                ArticleListBean articleListBean = JSONUtil.parseToArticleListBean(response.getData());
+                if (articleListBean == null) {
+                    onFailed(0, null);
+                    return;
+                }
+                List<ArticleBean> articleList = articleListBean.getDatas();
+//                List<ArticleBean> list = removeNullTags(articleList);
+                mTotalPage = articleListBean.getPageCount();
+                mCurrentPage = articleListBean.getCurPage();
+                if (mCurrentPage <= 1) {
+                    mArticleList = articleList;
+                }else {
+                    mArticleList.addAll(articleList);
+                }
+                articleAdapter.setArticleList(mArticleList);
+                articleAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailed(int code, String message) {
+                Toast.makeText(WanAndroidMainActivity.this, TextUtils.isEmpty(message) ? "文章内容为空！" : message, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    /**
+     * RecyclerView 滑动监听器
+     */
+    private RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+
+        private int lastItem;
+
+        @Override
+        public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+            super.onScrollStateChanged(recyclerView, newState);
+            //当滑动到最后一个且停止滚动
+            if (newState == RecyclerView.SCROLL_STATE_IDLE && lastItem + 1 == articleAdapter.getItemCount()
+                    && mCurrentPage < 10) {
+                Log.d("ARTICLE", "load more article");
+                Toast.makeText(WanAndroidMainActivity.this, "show more articles!", Toast.LENGTH_SHORT).show();
+                mPage += 1;
+                loadMore();
+            }else if (newState == RecyclerView.SCROLL_STATE_IDLE && lastItem + 1 == articleAdapter.getItemCount()
+                    && mCurrentPage >= 10){
+                //由于数据量太大，所以将可浏览的文章量控制在200篇内（20*10）
+                Toast.makeText(WanAndroidMainActivity.this, "All Article is show!", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        @Override
+        public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+            lastItem = mLayoutManager.findLastVisibleItemPosition();
+        }
+    };
 }
