@@ -8,7 +8,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 30
         versionCode 1
-        versionName "1.0"
+        versionName "V1.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -27,6 +27,13 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def date = new Date().format("yyyyMMdd", TimeZone.getTimeZone("GMT+08"))
+            output.outputFileName = "Demo_${buildType.name}_(${date}.${defaultConfig.versionName}_${defaultConfig.versionCode}).apk"
+        }
     }
 
 }
