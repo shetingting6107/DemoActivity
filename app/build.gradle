@@ -63,4 +63,6 @@ dependencies {
 
     //recyclerview
     implementation "androidx.recyclerview:recyclerview:1.1.0"
+    //swipeRefreshLayout
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 }
