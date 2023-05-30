@@ -19,7 +19,6 @@ import com.example.demoactivity.wanandroid.base.BaseActivity;
 import com.example.demoactivity.wanandroid.main.MainArticleAdapter;
 import com.example.demoactivity.wanandroid.main.MainRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class WanAndroidMainActivity extends BaseActivity {
@@ -105,21 +104,25 @@ public class WanAndroidMainActivity extends BaseActivity {
         loadMore();
     }
 
-    private List<ArticleBean> removeNullTags(List<ArticleBean> beans) {
-        List<ArticleBean> beanList = new ArrayList<>();
-        if (beans == null || beans.size() <= 0) {
-            return beanList;
-        }
+//    private List<ArticleBean> removeNullTags(List<ArticleBean> beans) {
+//        List<ArticleBean> beanList = new ArrayList<>();
+//        if (beans == null || beans.size() <= 0) {
+//            return beanList;
+//        }
+//
+//        for (ArticleBean bean : beans) {
+//            if (bean.getTags() != null && bean.getTags().size() > 0) {
+//                beanList.add(bean);
+//            }
+//        }
+//
+//        return beanList;
+//    }
 
-        for (ArticleBean bean : beans) {
-            if (bean.getTags() != null && bean.getTags().size() > 0) {
-                beanList.add(bean);
-            }
-        }
-
-        return beanList;
-    }
-
+    /**
+     * 展示文章列表内容
+     * 通过mPage值控制展示到第几页的列表
+     */
     private void loadMore() {
         mainRepository.getMainArticleList(mPage, new HttpCallback() {
             @Override
@@ -149,6 +152,9 @@ public class WanAndroidMainActivity extends BaseActivity {
         });
     }
 
+    /**
+     * 加载banner信息
+     */
     private void loadBanner() {
         mainRepository.getBanner(new HttpCallback() {
             @Override
