@@ -6,9 +6,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public abstract class HttpCallback implements Callback<BaseResponse> {
+public abstract class HttpCallback<T> implements Callback<BaseResponse<T>> {
     @Override
-    public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
+    public void onResponse(Call<BaseResponse<T>> call, Response<BaseResponse<T>> response) {
         if (!response.isSuccessful()) {
             onFailure(call, new Throwable("code = " + response.code() + " message = " + response.message()));
             return;
@@ -31,7 +31,7 @@ public abstract class HttpCallback implements Callback<BaseResponse> {
     }
 
     @Override
-    public void onFailure(Call<BaseResponse> call, Throwable t) {
+    public void onFailure(Call<BaseResponse<T>> call, Throwable t) {
         onFailed(Constants.CODE_NET_WORK_ERROR, t.getMessage());
     }
 

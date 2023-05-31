@@ -1,7 +1,10 @@
 package com.example.demoactivity.wanandroid;
 
+import android.content.Context;
+import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -9,38 +12,49 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.bumptech.glide.Glide;
 import com.example.demoactivity.R;
 import com.example.demoactivity.netWork.HttpCallback;
+import com.example.demoactivity.netWork.NetWorkActivity;
 import com.example.demoactivity.netWork.bean.ArticleBean;
 import com.example.demoactivity.netWork.bean.ArticleListBean;
 import com.example.demoactivity.netWork.bean.BannerBean;
-import com.example.demoactivity.netWork.utils.JSONUtil;
 import com.example.demoactivity.wanandroid.base.BaseActivity;
 import com.example.demoactivity.wanandroid.main.MainArticleAdapter;
 import com.example.demoactivity.wanandroid.main.MainRepository;
+import com.youth.banner.Banner;
+import com.youth.banner.BannerConfig;
+import com.youth.banner.loader.ImageLoader;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class WanAndroidMainActivity extends BaseActivity {
 
     private MainRepository mainRepository;
 
+    private Banner banner;
     private SwipeRefreshLayout swipeLayout;
     private RecyclerView articleListView;
+
     private MainArticleAdapter articleAdapter;
 
     private LinearLayoutManager mLayoutManager;
 
     private List<ArticleBean> mArticleList;
+    private List<BannerBean> mBannerList;
 
     private int mPage = 0;
     private int mTotalPage = 0;
     private int mCurrentPage = 0;
+    private Context mContext;
 
     public static final String TAG = "WanAndroidMain";
 
     @Override
     public void initView() {
+        mContext = getApplicationContext();
+        banner = findViewById(R.id.banner);
         swipeLayout = findViewById(R.id.swipe_layout);
         articleListView = findViewById(R.id.rv_article);
     }
@@ -54,11 +68,11 @@ public class WanAndroidMainActivity extends BaseActivity {
         //设置下拉刷新loading背景颜色
         swipeLayout.setProgressBackgroundColorSchemeColor(getResources().getColor(R.color.color_dark_gray));
         //设置刷新监听事件
-        swipeLayout.setOnRefreshListener(() -> mainRepository.getMainArticleList(0, new HttpCallback() {
+        swipeLayout.setOnRefreshListener(() -> mainRepository.getMainArticleList(0, new HttpCallback<ArticleListBean>() {
             @Override
             public void onSucceed(Object t) {
                 mPage = 0;
-                ArticleListBean articleListBean = JSONUtil.parseToArticleListBean(t);
+                ArticleListBean articleListBean = (ArticleListBean) t;
                 if (articleListBean == null) {
                     onFailed(0, null);
                     return;
@@ -81,7 +95,7 @@ public class WanAndroidMainActivity extends BaseActivity {
             public void onFailed(int code, String message) {
                 mPage = 0;
                 swipeLayout.setRefreshing(false);
-                Toast.makeText(WanAndroidMainActivity.this, TextUtils.isEmpty(message) ? "文章内容为空！" : message, Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, TextUtils.isEmpty(message) ? "文章内容为空！" : message, Toast.LENGTH_SHORT).show();
             }
         }));
 
@@ -124,10 +138,10 @@ public class WanAndroidMainActivity extends BaseActivity {
      * 通过mPage值控制展示到第几页的列表
      */
     private void loadMore() {
-        mainRepository.getMainArticleList(mPage, new HttpCallback() {
+        mainRepository.getMainArticleList(mPage, new HttpCallback<ArticleListBean>() {
             @Override
             public void onSucceed(Object t) {
-                ArticleListBean articleListBean = JSONUtil.parseToArticleListBean(t);
+                ArticleListBean articleListBean = (ArticleListBean) t;
                 if (articleListBean == null) {
                     onFailed(0, null);
                     return;
@@ -147,7 +161,7 @@ public class WanAndroidMainActivity extends BaseActivity {
 
             @Override
             public void onFailed(int code, String message) {
-                Toast.makeText(WanAndroidMainActivity.this, TextUtils.isEmpty(message) ? "文章内容为空！" : message, Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, TextUtils.isEmpty(message) ? "文章内容为空！" : message, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -156,7 +170,7 @@ public class WanAndroidMainActivity extends BaseActivity {
      * 加载banner信息
      */
     private void loadBanner() {
-        mainRepository.getBanner(new HttpCallback() {
+        mainRepository.getBanner(new HttpCallback<List<BannerBean>>() {
             @Override
             public void onSucceed(Object t) {
                 List<BannerBean> bannerList = (List<BannerBean>) t;
@@ -165,13 +179,69 @@ public class WanAndroidMainActivity extends BaseActivity {
                     return;
                 }
                 Log.d(TAG, "banner list = " + bannerList);
+                mBannerList = bannerList;
+                showBanner();
             }
 
             @Override
             public void onFailed(int code, String message) {
-                Toast.makeText(WanAndroidMainActivity.this, message != null ? message : "存在异常，请排查！", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, message != null ? message : "存在异常，请排查！", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    /**
+     * 将获取到的banner信息展示出来
+     */
+    private void showBanner() {
+        if (mBannerList == null || mBannerList.size() == 0) {
+            return;
+        }
+        List<String> imageList = new ArrayList<>();
+        List<String> titleList = new ArrayList<>();
+        for (BannerBean bean : mBannerList) {
+            String imageUrl = bean.getImagePath();
+            imageList.add(imageUrl);
+            String title = bean.getTitle();
+            titleList.add(title);
+        }
+
+        //设置内置样式
+        banner.setBannerStyle(BannerConfig.NUM_INDICATOR_TITLE);
+        //设置加载图片工具
+        banner.setImageLoader(new ImageLoader() {
+            @Override
+            public void displayImage(Context context, Object path, ImageView imageView) {
+                Glide.with(context).load(path).into(imageView);
+            }
+        });
+        //设置图片网址或地址集合
+        banner.setImages(imageList);
+        //设置banner标题
+        banner.setBannerTitles(titleList);
+        //设置轮播时间
+        banner.setDelayTime(3 * 1000);
+        //设置是否为自动轮播
+        banner.isAutoPlay(true);
+        //设置显示器位置，小点点的位置
+        banner.setIndicatorGravity(BannerConfig.CENTER);
+        //设置轮播图的监听
+        banner.setOnBannerListener(position -> {
+            if (mBannerList == null || mBannerList.size() == 0) {
+                Toast.makeText(mContext, "banner list is empty！", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            BannerBean bean = mBannerList.get(position);
+            if (bean == null || TextUtils.isEmpty(bean.getUrl())) {
+                Toast.makeText(mContext, "banner bean url is empty！", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Intent intent = new Intent(mContext, NetWorkActivity.class);
+            intent.putExtra("LINK_URL", bean.getUrl());
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            mContext.startActivity(intent);
+        });
+        banner.start();
     }
 
     /**
@@ -188,13 +258,13 @@ public class WanAndroidMainActivity extends BaseActivity {
             if (newState == RecyclerView.SCROLL_STATE_IDLE && lastItem + 1 == articleAdapter.getItemCount()
                     && mCurrentPage < 10) {
                 Log.d(TAG, "load more article");
-                Toast.makeText(WanAndroidMainActivity.this, "show more articles!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "show more articles!", Toast.LENGTH_SHORT).show();
                 mPage += 1;
                 loadMore();
             }else if (newState == RecyclerView.SCROLL_STATE_IDLE && lastItem + 1 == articleAdapter.getItemCount()
                     && mCurrentPage >= 10){
                 //由于数据量太大，所以将可浏览的文章量控制在200篇内（20*10）
-                Toast.makeText(WanAndroidMainActivity.this, "All Article is show!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "All Article is show!", Toast.LENGTH_SHORT).show();
             }
         }
 

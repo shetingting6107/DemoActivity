@@ -21,12 +21,12 @@ public class BannerBean extends BaseBean {
      */
 
     private String desc;
-    private int id;
+    private Double id;
     private String imagePath;
-    private int isVisible;
-    private int order;
+    private Double isVisible;
+    private Double order;
     private String title;
-    private int type;
+    private Double type;
     private String url;
 
     public String getDesc() {
@@ -37,11 +37,11 @@ public class BannerBean extends BaseBean {
         this.desc = desc;
     }
 
-    public int getId() {
+    public Double getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Double id) {
         this.id = id;
     }
 
@@ -53,19 +53,19 @@ public class BannerBean extends BaseBean {
         this.imagePath = imagePath;
     }
 
-    public int getIsVisible() {
+    public Double getIsVisible() {
         return isVisible;
     }
 
-    public void setIsVisible(int isVisible) {
+    public void setIsVisible(Double isVisible) {
         this.isVisible = isVisible;
     }
 
-    public int getOrder() {
+    public Double getOrder() {
         return order;
     }
 
-    public void setOrder(int order) {
+    public void setOrder(Double order) {
         this.order = order;
     }
 
@@ -77,11 +77,11 @@ public class BannerBean extends BaseBean {
         this.title = title;
     }
 
-    public int getType() {
+    public Double getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(Double type) {
         this.type = type;
     }
 
