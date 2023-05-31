@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -54,6 +55,7 @@ public class MainArticleAdapter extends RecyclerView.Adapter<MainArticleAdapter.
         if (tags.length() > 2) {
             holder.tv_tags.setText(tags.toString().substring(0, tags.toString().length() - 2));
         }else {
+            holder.ll_tag.setVisibility(View.GONE);
             holder.tv_tags.setText("");
         }
 
@@ -78,6 +80,7 @@ public class MainArticleAdapter extends RecyclerView.Adapter<MainArticleAdapter.
         private TextView tv_author;
         private TextView tv_article_title;
         private TextView tv_publish_time;
+        private LinearLayout ll_tag;
         private TextView tv_tags;
 
 
@@ -86,6 +89,7 @@ public class MainArticleAdapter extends RecyclerView.Adapter<MainArticleAdapter.
             tv_author = itemView.findViewById(R.id.tv_author);
             tv_article_title = itemView.findViewById(R.id.tv_article_title);
             tv_publish_time = itemView.findViewById(R.id.tv_publish_time);
+            ll_tag = itemView.findViewById(R.id.ll_tag);
             tv_tags = itemView.findViewById(R.id.tv_tags);
 
         }
