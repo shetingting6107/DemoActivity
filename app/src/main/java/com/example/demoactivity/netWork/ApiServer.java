@@ -1,5 +1,6 @@
 package com.example.demoactivity.netWork;
 
+import com.example.demoactivity.netWork.base.BaseBean;
 import com.example.demoactivity.netWork.base.BaseResponse;
 import com.example.demoactivity.netWork.bean.ArticleBean;
 import com.example.demoactivity.netWork.bean.ArticleListBean;
@@ -52,4 +53,17 @@ public interface ApiServer {
      */
     @GET("/article/top/json")
     Call<BaseResponse<List<ArticleBean>>> getTopArticle();
+
+    /**
+     * 登录wan android
+     */
+    @POST("/user/login")
+    Call<BaseResponse<BaseBean>> login(@Query("username") String userName, @Query("password") String pwd);
+
+    /**
+     * 注册wan android
+     */
+    @POST("/user/register")
+    Call<BaseResponse<BaseBean>> register(@Query("username") String userName, @Query("password") String pwd, @Query("repassword") String rePwd);
+
 }
