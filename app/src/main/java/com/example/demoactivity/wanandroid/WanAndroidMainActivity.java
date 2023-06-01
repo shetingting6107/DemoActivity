@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -22,6 +24,7 @@ import com.example.demoactivity.netWork.bean.BannerBean;
 import com.example.demoactivity.wanandroid.base.BaseActivity;
 import com.example.demoactivity.wanandroid.main.MainArticleAdapter;
 import com.example.demoactivity.wanandroid.main.MainRepository;
+import com.example.demoactivity.wanandroid.main.SearchActivity;
 import com.youth.banner.Banner;
 import com.youth.banner.BannerConfig;
 import com.youth.banner.loader.ImageLoader;
@@ -33,6 +36,7 @@ public class WanAndroidMainActivity extends BaseActivity {
 
     private MainRepository mainRepository;
 
+    private EditText etMainSearch;
     private Banner banner;
     private SwipeRefreshLayout swipeLayout;
     private RecyclerView articleListView;
@@ -54,6 +58,7 @@ public class WanAndroidMainActivity extends BaseActivity {
     @Override
     public void initView() {
         mContext = getApplicationContext();
+        etMainSearch = findViewById(R.id.et_main_search);
         banner = findViewById(R.id.banner);
         swipeLayout = findViewById(R.id.swipe_layout);
         articleListView = findViewById(R.id.rv_article);
@@ -104,6 +109,15 @@ public class WanAndroidMainActivity extends BaseActivity {
         articleListView.setLayoutManager(mLayoutManager);
         articleListView.setAdapter(articleAdapter);
         articleListView.addOnScrollListener(onScrollListener);
+
+        etMainSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, SearchActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mContext.startActivity(intent);
+            }
+        });
 
         initList();
     }

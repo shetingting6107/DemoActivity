@@ -115,6 +115,11 @@
             android:exported="true"
             android:launchMode="singleTask"/>
 
+        <activity android:name=".wanandroid.main.SearchActivity"
+            android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
+            android:exported="true"
+            android:launchMode="singleTask"/>
+
         <activity android:name=".wanandroid.login.LoginActivity"
             android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
             android:exported="true"
