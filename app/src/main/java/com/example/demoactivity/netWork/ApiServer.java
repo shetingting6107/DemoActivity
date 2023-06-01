@@ -1,6 +1,7 @@
 package com.example.demoactivity.netWork;
 
 import com.example.demoactivity.netWork.base.BaseResponse;
+import com.example.demoactivity.netWork.bean.ArticleBean;
 import com.example.demoactivity.netWork.bean.ArticleListBean;
 import com.example.demoactivity.netWork.bean.BannerBean;
 import com.example.demoactivity.netWork.bean.SearchHotKeyBean;
@@ -44,4 +45,11 @@ public interface ApiServer {
      */
     @POST("/article/query/{page}/json")
     Call<BaseResponse<ArticleListBean>> getArticleByKey(@Path("page") int page, @Query("k") String k);
+
+    /**
+     * 获取置顶文章
+     * @return 置顶文章列表
+     */
+    @GET("/article/top/json")
+    Call<BaseResponse<List<ArticleBean>>> getTopArticle();
 }

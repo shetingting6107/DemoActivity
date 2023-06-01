@@ -61,6 +61,8 @@ public class MainArticleAdapter extends RecyclerView.Adapter<MainArticleAdapter.
             holder.tv_tags.setText("");
         }
 
+        holder.tv_top.setVisibility(articleBean.getType() == 0 ? View.GONE : View.VISIBLE);
+
         holder.itemView.setOnClickListener(v -> {
             if (TextUtils.isEmpty(articleBean.getLink())) {
                 return;
@@ -79,6 +81,7 @@ public class MainArticleAdapter extends RecyclerView.Adapter<MainArticleAdapter.
 
     static class MainArticleViewHolder extends RecyclerView.ViewHolder {
 
+        private TextView tv_top;
         private TextView tv_author;
         private TextView tv_article_title;
         private TextView tv_publish_time;
@@ -88,6 +91,7 @@ public class MainArticleAdapter extends RecyclerView.Adapter<MainArticleAdapter.
 
         public MainArticleViewHolder(@NonNull View itemView) {
             super(itemView);
+            tv_top = itemView.findViewById(R.id.tv_top);
             tv_author = itemView.findViewById(R.id.tv_author);
             tv_article_title = itemView.findViewById(R.id.tv_article_title);
             tv_publish_time = itemView.findViewById(R.id.tv_publish_time);

@@ -45,7 +45,7 @@ public class WanAndroidMainActivity extends BaseActivity {
 
     private LinearLayoutManager mLayoutManager;
 
-    private List<ArticleBean> mArticleList;
+    private List<ArticleBean> mArticleList = new ArrayList<>();
     private List<BannerBean> mBannerList;
 
     private int mPage = 0;
@@ -73,36 +73,12 @@ public class WanAndroidMainActivity extends BaseActivity {
         //设置下拉刷新loading背景颜色
         swipeLayout.setProgressBackgroundColorSchemeColor(getResources().getColor(R.color.color_dark_gray));
         //设置刷新监听事件
-        swipeLayout.setOnRefreshListener(() -> mainRepository.getMainArticleList(0, new HttpCallback<ArticleListBean>() {
+        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
-            public void onSucceed(Object t) {
-                mPage = 0;
-                ArticleListBean articleListBean = (ArticleListBean) t;
-                if (articleListBean == null) {
-                    onFailed(0, null);
-                    return;
-                }
-                List<ArticleBean> articleList = articleListBean.getDatas();
-                mTotalPage = articleListBean.getPageCount();
-                mCurrentPage = articleListBean.getCurPage();
-                if (mCurrentPage <= 1) {
-                    mArticleList = articleList;
-                }else {
-                    mArticleList.addAll(articleList);
-                }
-//                List<ArticleBean> list = removeNullTags(articleList);
-                articleAdapter.setArticleList(mArticleList);
-                articleAdapter.notifyDataSetChanged();
-                swipeLayout.setRefreshing(false);
+            public void onRefresh() {
+                getAllArticle();
             }
-
-            @Override
-            public void onFailed(int code, String message) {
-                mPage = 0;
-                swipeLayout.setRefreshing(false);
-                Toast.makeText(mContext, TextUtils.isEmpty(message) ? "文章内容为空！" : message, Toast.LENGTH_SHORT).show();
-            }
-        }));
+        });
 
         articleAdapter = new MainArticleAdapter(this);
         mLayoutManager = new LinearLayoutManager(this);
@@ -129,7 +105,7 @@ public class WanAndroidMainActivity extends BaseActivity {
 
     private void initList() {
         loadBanner();
-        loadMore();
+        getAllArticle();
     }
 
 //    private List<ArticleBean> removeNullTags(List<ArticleBean> beans) {
@@ -146,6 +122,24 @@ public class WanAndroidMainActivity extends BaseActivity {
 //
 //        return beanList;
 //    }
+
+    private void getAllArticle() {
+        mainRepository.getTopArticle(new HttpCallback<List<ArticleBean>>() {
+            @Override
+            public void onSucceed(Object t) {
+                List<ArticleBean> articleList = (List<ArticleBean>) t;
+                if (articleList != null && articleList.size() > 0) {
+                    mArticleList.addAll(articleList);
+                }
+                loadMore();
+            }
+
+            @Override
+            public void onFailed(int code, String message) {
+                loadMore();
+            }
+        });
+    }
 
     /**
      * 展示文章列表内容
@@ -164,17 +158,19 @@ public class WanAndroidMainActivity extends BaseActivity {
 //                List<ArticleBean> list = removeNullTags(articleList);
                 mTotalPage = articleListBean.getPageCount();
                 mCurrentPage = articleListBean.getCurPage();
-                if (mCurrentPage <= 1) {
-                    mArticleList = articleList;
-                }else {
+//                if (mCurrentPage <= 1) {
+//                    mArticleList = articleList;
+//                }else {
                     mArticleList.addAll(articleList);
-                }
+//                }
                 articleAdapter.setArticleList(mArticleList);
                 articleAdapter.notifyDataSetChanged();
+                swipeLayout.setRefreshing(false);
             }
 
             @Override
             public void onFailed(int code, String message) {
+                swipeLayout.setRefreshing(false);
                 Toast.makeText(mContext, TextUtils.isEmpty(message) ? "文章内容为空！" : message, Toast.LENGTH_SHORT).show();
             }
         });
