@@ -20,7 +20,7 @@ import com.example.demoactivity.accessibility.ui.AccessibilityActivity;
 import com.example.demoactivity.content.observer.DemoObserverActivity;
 import com.example.demoactivity.mvvm.UserInfoActivity;
 import com.example.demoactivity.netWork.NetWorkActivity;
-import com.example.demoactivity.wanandroid.WanAndroidMainActivity;
+import com.example.demoactivity.wanandroid.login.LoginActivity;
 import com.example.demoactivity.xLog.XlogActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
         tv_wanandroid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, WanAndroidMainActivity.class);
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
             }
         });
