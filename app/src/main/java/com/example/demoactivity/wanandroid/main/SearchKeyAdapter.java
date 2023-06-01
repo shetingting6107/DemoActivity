@@ -22,14 +22,14 @@ public class SearchKeyAdapter extends RecyclerView.Adapter<SearchKeyAdapter.Sear
     private LayoutInflater mLayoutInflater;
     private onRecyclerItemClickListener mListener;
 
-    private static List<SearchHotKeyBean> keyList;
+    private List<SearchHotKeyBean> keyList;
 
     public SearchKeyAdapter(Context context) {
         mContext = context;
         mLayoutInflater = LayoutInflater.from(context);
     }
 
-    public static void setKeyList(List<SearchHotKeyBean> searchKeyList) {
+    public void setKeyList(List<SearchHotKeyBean> searchKeyList) {
         keyList = searchKeyList;
     }
 
@@ -46,7 +46,8 @@ public class SearchKeyAdapter extends RecyclerView.Adapter<SearchKeyAdapter.Sear
     @Override
     public void onBindViewHolder(@NonNull SearchKeyViewHolder holder, int position) {
         SearchHotKeyBean keyBean = keyList.get(position);
-        holder.tvPosition.setText(position + 1);
+        String po = String.valueOf(position + 1);
+        holder.tvPosition.setText(po);
         holder.tvKeyTitle.setText(keyBean.getName());
         if (keyBean.getOrder() <= 3) {
             holder.ivHot.setVisibility(View.VISIBLE);

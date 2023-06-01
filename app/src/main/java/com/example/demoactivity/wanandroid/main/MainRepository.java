@@ -4,6 +4,7 @@ import com.example.demoactivity.netWork.HttpCallback;
 import com.example.demoactivity.netWork.base.BaseRepository;
 import com.example.demoactivity.netWork.bean.ArticleListBean;
 import com.example.demoactivity.netWork.bean.BannerBean;
+import com.example.demoactivity.netWork.bean.SearchHotKeyBean;
 
 import java.util.List;
 
@@ -22,5 +23,12 @@ public class MainRepository extends BaseRepository {
      */
     public void getBanner(HttpCallback<List<BannerBean>> callback) {
         apiServer.getBanner().enqueue(callback);
+    }
+
+    /**
+     * 获取搜索热词
+     */
+    public void getSearchHotKey(HttpCallback<List<SearchHotKeyBean>> callback) {
+        apiServer.getSearchHotKey().enqueue(callback);
     }
 }

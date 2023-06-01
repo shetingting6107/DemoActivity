@@ -3,6 +3,7 @@ package com.example.demoactivity.netWork;
 import com.example.demoactivity.netWork.base.BaseResponse;
 import com.example.demoactivity.netWork.bean.ArticleListBean;
 import com.example.demoactivity.netWork.bean.BannerBean;
+import com.example.demoactivity.netWork.bean.SearchHotKeyBean;
 
 import java.util.List;
 
@@ -26,4 +27,11 @@ public interface ApiServer {
      */
     @GET("/banner/json")
     Call<BaseResponse<List<BannerBean>>> getBanner();
+
+    /**
+     * 获取搜索热词
+     * @return 搜索热词信息
+     */
+    @GET("/hotkey/json")
+    Call<BaseResponse<List<SearchHotKeyBean>>> getSearchHotKey();
 }

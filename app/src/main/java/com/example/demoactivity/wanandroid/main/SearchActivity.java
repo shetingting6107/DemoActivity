@@ -3,11 +3,13 @@ package com.example.demoactivity.wanandroid.main;
 import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.demoactivity.R;
+import com.example.demoactivity.netWork.HttpCallback;
 import com.example.demoactivity.netWork.bean.SearchHotKeyBean;
 import com.example.demoactivity.wanandroid.base.BaseActivity;
 
@@ -18,6 +20,8 @@ public class SearchActivity extends BaseActivity {
     private EditText etSearch;
     private Button btnSearch;
     private RecyclerView rvSearchKey;
+
+    private MainRepository mainRepository;
 
     private SearchKeyAdapter adapter;
 
@@ -34,8 +38,6 @@ public class SearchActivity extends BaseActivity {
         btnSearch = findViewById(R.id.btn_search);
         rvSearchKey = findViewById(R.id.rv_search_key);
 
-        etSearch.setFocusable(true);
-
         rvSearchKey.setLayoutManager(new LinearLayoutManager(this));
         adapter = new SearchKeyAdapter(this);
         adapter.setListener(position -> {
@@ -51,12 +53,29 @@ public class SearchActivity extends BaseActivity {
         });
         rvSearchKey.setAdapter(adapter);
 
-
     }
 
     @Override
     public void initData() {
+        mainRepository = new MainRepository();
 
+        mainRepository.getSearchHotKey(new HttpCallback<List<SearchHotKeyBean>>() {
+            @Override
+            public void onSucceed(Object t) {
+                List<SearchHotKeyBean> hotKeyBeans = (List<SearchHotKeyBean>) t;
+                if (hotKeyBeans == null || hotKeyBeans.size() <= 0) {
+                    return;
+                }
+                keyBeanList = hotKeyBeans;
+                adapter.setKeyList(hotKeyBeans);
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailed(int code, String message) {
+                Toast.makeText(SearchActivity.this, TextUtils.isEmpty(message) ? "存在异常，请排查问题！" : message, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
 }
