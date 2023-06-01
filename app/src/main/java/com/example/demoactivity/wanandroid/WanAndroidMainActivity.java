@@ -261,7 +261,7 @@ public class WanAndroidMainActivity extends BaseActivity {
     /**
      * RecyclerView 滑动监听器
      */
-    private RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+    public RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
 
         private int lastItem;
 

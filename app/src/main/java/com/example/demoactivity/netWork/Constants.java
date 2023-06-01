@@ -11,4 +11,14 @@ public class Constants {
     public static final String BASE_URL = "https://www.wanandroid.com";
 
 
+    public static class Extra {
+
+        public static final String EXTRA_SEARCH_KEY = "search_key";
+
+    }
+
+    public static class Param {
+
+    }
+
 }

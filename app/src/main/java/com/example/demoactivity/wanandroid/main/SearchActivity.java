@@ -1,5 +1,6 @@
 package com.example.demoactivity.wanandroid.main;
 
+import android.content.Intent;
 import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
@@ -9,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.demoactivity.R;
+import com.example.demoactivity.netWork.Constants;
 import com.example.demoactivity.netWork.HttpCallback;
 import com.example.demoactivity.netWork.bean.SearchHotKeyBean;
 import com.example.demoactivity.wanandroid.base.BaseActivity;
@@ -50,9 +52,24 @@ public class SearchActivity extends BaseActivity {
                 return;
             }
             etSearch.setText(title);
+            getSearchResult(title);
         });
         rvSearchKey.setAdapter(adapter);
 
+        btnSearch.setOnClickListener(v -> {
+            String text = etSearch.getText().toString();
+            if (TextUtils.isEmpty(text)) {
+                Toast.makeText(SearchActivity.this, "请检查输入文字！", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            getSearchResult(text);
+        });
+    }
+
+    private void getSearchResult(String key) {
+        Intent intent = new Intent(SearchActivity.this, SearchResultActivity.class);
+        intent.putExtra(Constants.Extra.EXTRA_SEARCH_KEY, key);
+        startActivity(intent);
     }
 
     @Override

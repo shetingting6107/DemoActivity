@@ -2,6 +2,7 @@ package com.example.demoactivity.wanandroid.main;
 
 import android.content.Context;
 import android.content.Intent;
+import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,7 +44,7 @@ public class MainArticleAdapter extends RecyclerView.Adapter<MainArticleAdapter.
     public void onBindViewHolder(@NonNull MainArticleViewHolder holder, int position) {
         ArticleBean articleBean = articleList.get(position);
         holder.tv_author.setText(!TextUtils.isEmpty(articleBean.getAuthor()) ? articleBean.getAuthor() : articleBean.getShareUser());
-        holder.tv_article_title.setText(articleBean.getTitle());
+        holder.tv_article_title.setText(Html.fromHtml(articleBean.getTitle()));
         holder.tv_publish_time.setText(articleBean.getAuthor() != null ? articleBean.getNiceDate() : articleBean.getNiceDate());
         List<ArticleBean.TagsBean> tagsList = articleBean.getTags();
         StringBuilder tags = new StringBuilder();

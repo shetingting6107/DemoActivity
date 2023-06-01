@@ -31,4 +31,13 @@ public class MainRepository extends BaseRepository {
     public void getSearchHotKey(HttpCallback<List<SearchHotKeyBean>> callback) {
         apiServer.getSearchHotKey().enqueue(callback);
     }
+
+    /**
+     * 根据关键字检索文章
+     * @param page 页码
+     * @param key 关键字
+     */
+    public void getArticleByKey(int page, String key, HttpCallback<ArticleListBean> callback) {
+        apiServer.getArticleByKey(page, key).enqueue(callback);
+    }
 }

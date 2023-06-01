@@ -9,7 +9,9 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface ApiServer {
 
@@ -34,4 +36,12 @@ public interface ApiServer {
      */
     @GET("/hotkey/json")
     Call<BaseResponse<List<SearchHotKeyBean>>> getSearchHotKey();
+
+    /**
+     * 获取按关键字搜索文章列表
+     * @param page 页码
+     * @return 文章列表
+     */
+    @POST("/article/query/{page}/json")
+    Call<BaseResponse<ArticleListBean>> getArticleByKey(@Path("page") int page, @Query("k") String k);
 }
