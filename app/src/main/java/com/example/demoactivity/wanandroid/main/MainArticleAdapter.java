@@ -54,6 +54,7 @@ public class MainArticleAdapter extends RecyclerView.Adapter<MainArticleAdapter.
             }
         }
         if (tags.length() > 2) {
+            holder.ll_tag.setVisibility(View.VISIBLE);
             holder.tv_tags.setText(tags.toString().substring(0, tags.toString().length() - 2));
         }else {
             holder.ll_tag.setVisibility(View.GONE);
