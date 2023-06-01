@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.demoactivity.R;
 import com.example.demoactivity.netWork.Constants;
@@ -30,6 +31,7 @@ public class SearchResultActivity extends BaseActivity {
     private ImageView ivBack;
     private EditText etSearch;
     private Button btnSearch;
+    private SwipeRefreshLayout swipeLayout;
     private RecyclerView rvArticle;
 
     private LinearLayoutManager mLayoutManager;
@@ -56,6 +58,7 @@ public class SearchResultActivity extends BaseActivity {
         ivBack = findViewById(R.id.iv_back);
         etSearch = findViewById(R.id.et_search);
         btnSearch = findViewById(R.id.btn_search);
+        swipeLayout = findViewById(R.id.swipe_layout);
         rvArticle = findViewById(R.id.rv_result_article);
 
         mLayoutManager = new LinearLayoutManager(this);
@@ -84,6 +87,42 @@ public class SearchResultActivity extends BaseActivity {
     @Override
     public void initData() {
         mainRepository = new MainRepository();
+
+        //设置下拉刷新loading圆圈的颜色
+        swipeLayout.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
+        //设置下拉刷新loading背景颜色
+        swipeLayout.setProgressBackgroundColorSchemeColor(getResources().getColor(R.color.color_dark_gray));
+        //设置刷新监听事件
+        swipeLayout.setOnRefreshListener(() -> mainRepository.getArticleByKey(0, mKey, new HttpCallback<ArticleListBean>() {
+            @Override
+            public void onSucceed(Object t) {
+                mPage = 0;
+                ArticleListBean articleListBean = (ArticleListBean) t;
+                if (articleListBean == null) {
+                    onFailed(0, null);
+                    return;
+                }
+                List<ArticleBean> articleList = articleListBean.getDatas();
+                mTotalPage = articleListBean.getPageCount();
+                mCurrentPage = articleListBean.getCurPage();
+                if (mCurrentPage <= 1) {
+                    mArticleList = articleList;
+                }else {
+                    mArticleList.addAll(articleList);
+                }
+//                List<ArticleBean> list = removeNullTags(articleList);
+                articleAdapter.setArticleList(mArticleList);
+                articleAdapter.notifyDataSetChanged();
+                swipeLayout.setRefreshing(false);
+            }
+
+            @Override
+            public void onFailed(int code, String message) {
+                mPage = 0;
+                swipeLayout.setRefreshing(false);
+                Toast.makeText(mContext, TextUtils.isEmpty(message) ? "文章内容为空！" : message, Toast.LENGTH_SHORT).show();
+            }
+        }));
 
         Intent intent = getIntent();
         String key = intent.getStringExtra(Constants.Extra.EXTRA_SEARCH_KEY);
@@ -137,15 +176,16 @@ public class SearchResultActivity extends BaseActivity {
         @Override
         public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
             super.onScrollStateChanged(recyclerView, newState);
+            int total = Math.min(mTotalPage, 10);
             //当滑动到最后一个且停止滚动
             if (newState == RecyclerView.SCROLL_STATE_IDLE && lastItem + 1 == articleAdapter.getItemCount()
-                    && mCurrentPage < 10) {
+                    && mCurrentPage < total) {
                 Log.d(TAG, "load more article");
                 Toast.makeText(mContext, "show more articles!", Toast.LENGTH_SHORT).show();
                 mPage += 1;
                 getArticleByKey();
             }else if (newState == RecyclerView.SCROLL_STATE_IDLE && lastItem + 1 == articleAdapter.getItemCount()
-                    && mCurrentPage >= 10){
+                    && mCurrentPage >= total){
                 //由于数据量太大，所以将可浏览的文章量控制在200篇内（20*10）
                 Toast.makeText(mContext, "All Article is show!", Toast.LENGTH_SHORT).show();
             }

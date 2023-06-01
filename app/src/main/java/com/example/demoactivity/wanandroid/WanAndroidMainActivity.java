@@ -269,14 +269,15 @@ public class WanAndroidMainActivity extends BaseActivity {
         public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
             super.onScrollStateChanged(recyclerView, newState);
             //当滑动到最后一个且停止滚动
+            int total = Math.min(mTotalPage, 10);
             if (newState == RecyclerView.SCROLL_STATE_IDLE && lastItem + 1 == articleAdapter.getItemCount()
-                    && mCurrentPage < 10) {
+                    && mCurrentPage < total) {
                 Log.d(TAG, "load more article");
                 Toast.makeText(mContext, "show more articles!", Toast.LENGTH_SHORT).show();
                 mPage += 1;
                 loadMore();
             }else if (newState == RecyclerView.SCROLL_STATE_IDLE && lastItem + 1 == articleAdapter.getItemCount()
-                    && mCurrentPage >= 10){
+                    && mCurrentPage >= total){
                 //由于数据量太大，所以将可浏览的文章量控制在200篇内（20*10）
                 Toast.makeText(mContext, "All Article is show!", Toast.LENGTH_SHORT).show();
             }
