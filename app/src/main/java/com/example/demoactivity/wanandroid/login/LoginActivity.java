@@ -95,6 +95,11 @@ public class LoginActivity extends BaseActivity {
         return R.layout.activity_wan_login;
     }
 
+    /**
+     * 登录
+     * @param userName 用户名
+     * @param pwd 密码
+     */
     private void login(String userName, String pwd) {
         loginRepository.login(userName, pwd, new HttpCallback<BaseBean>() {
             @Override
@@ -114,6 +119,12 @@ public class LoginActivity extends BaseActivity {
         });
     }
 
+    /**
+     * 注册
+     * @param username 用户名
+     * @param pwd 密码
+     * @param repwd 确认密码
+     */
     private void register(String username, String pwd, String repwd) {
         loginRepository.register(username, pwd, repwd, new HttpCallback<BaseBean>() {
             @Override

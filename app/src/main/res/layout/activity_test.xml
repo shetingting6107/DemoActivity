@@ -102,4 +102,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
+    <Button
+        android:id="@+id/btn_device_admin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="register admin"/>
+
+    <Button
+        android:id="@+id/btn_unregister_device_admin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="unregister admin"/>
+
 </LinearLayout>
