@@ -29,6 +29,8 @@
             android:hint="userName/用户名"
             android:paddingStart="15dp"
             android:paddingEnd="15dp"
+            android:inputType="text"
+            android:maxLines="1"
             android:textColor="@color/color_black"/>
 
         <EditText
@@ -78,6 +80,8 @@
             android:layout_height="40dp"
             android:background="@drawable/bg_login_edit"
             android:hint="userName/用户名"
+            android:inputType="text"
+            android:maxLines="1"
             android:paddingStart="15dp"
             android:paddingEnd="15dp"
             android:textColor="@color/color_black"/>
