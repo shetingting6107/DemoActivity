@@ -14,6 +14,7 @@ import com.example.demoactivity.netWork.HttpCallback;
 import com.example.demoactivity.netWork.base.BaseBean;
 import com.example.demoactivity.wanandroid.WanAndroidMainActivity;
 import com.example.demoactivity.wanandroid.base.BaseActivity;
+import com.example.demoactivity.wanandroid.util.LoadingDialog;
 
 public class LoginActivity extends BaseActivity {
 
@@ -101,9 +102,11 @@ public class LoginActivity extends BaseActivity {
      * @param pwd 密码
      */
     private void login(String userName, String pwd) {
+        LoadingDialog.showLoading(LoginActivity.this);
         loginRepository.login(userName, pwd, new HttpCallback<BaseBean>() {
             @Override
             public void onSucceed(Object t) {
+                LoadingDialog.dismissLoading(LoginActivity.this);
                 Toast.makeText(LoginActivity.this, "登录成功！", Toast.LENGTH_SHORT).show();
                 etLoginUsername.setText("");
                 etLoginPwd.setText("");
@@ -114,6 +117,7 @@ public class LoginActivity extends BaseActivity {
 
             @Override
             public void onFailed(int code, String message) {
+                LoadingDialog.dismissLoading(LoginActivity.this);
                 Toast.makeText(LoginActivity.this, TextUtils.isEmpty(message) ? "登录失败！请检查！" : message, Toast.LENGTH_SHORT).show();
             }
         });
@@ -126,9 +130,11 @@ public class LoginActivity extends BaseActivity {
      * @param repwd 确认密码
      */
     private void register(String username, String pwd, String repwd) {
+        LoadingDialog.showLoading(LoginActivity.this);
         loginRepository.register(username, pwd, repwd, new HttpCallback<BaseBean>() {
             @Override
             public void onSucceed(Object t) {
+                LoadingDialog.dismissLoading(LoginActivity.this);
                 Toast.makeText(LoginActivity.this, "注册成功！", Toast.LENGTH_SHORT).show();
                 etRegisterUsername.setText("");
                 etRegisterPwd.setText("");
@@ -139,6 +145,7 @@ public class LoginActivity extends BaseActivity {
 
             @Override
             public void onFailed(int code, String message) {
+                LoadingDialog.dismissLoading(LoginActivity.this);
                 Toast.makeText(LoginActivity.this, TextUtils.isEmpty(message) ? "注册失败！请检查！" : message, Toast.LENGTH_SHORT).show();
             }
         });
