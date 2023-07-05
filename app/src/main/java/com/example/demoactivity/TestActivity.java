@@ -11,7 +11,9 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Html;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -141,6 +143,18 @@ public class TestActivity extends AppCompatActivity {
                 }
             }
         });
+
+        TextView tv_html = findViewById(R.id.tv_html);
+        String str = "去百度";
+        String url = "https://www.baidu.com/";
+        String htmlText = "<a href=\""
+                + url
+                + "\">"
+                + str
+                + "</a>";
+        CharSequence cs = Html.fromHtml(htmlText);
+        tv_html.setText(cs);
+        tv_html.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     @TargetApi(18)
