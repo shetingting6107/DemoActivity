@@ -25,6 +25,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.demoactivity.deviceAdmin.DeviceManageReceiver;
+import com.example.demoactivity.otto.BusHelper;
+import com.example.demoactivity.otto.EventData;
+import com.squareup.otto.Produce;
+import com.squareup.otto.Subscribe;
 
 import java.util.List;
 
@@ -33,11 +37,20 @@ public class TestActivity extends AppCompatActivity {
     private final long DEFAULT_COUNT = 6 * 1000L;
     private final long DEFAULT_DELAY = 1000L;
 
+    Button btn_goto;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
         initView();
+        BusHelper.getBus().register(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        BusHelper.getBus().unregister(this);
     }
 
     private void initView() {
@@ -155,6 +168,46 @@ public class TestActivity extends AppCompatActivity {
         CharSequence cs = Html.fromHtml(htmlText);
         tv_html.setText(cs);
         tv_html.setMovementMethod(LinkMovementMethod.getInstance());
+
+        btn_goto = findViewById(R.id.btn_OTTO);
+        btn_goto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //发送事件的通用方式
+                BusHelper.getBus().post(new EventData("li", "hello"));
+            }
+        });
+    }
+
+    /**
+     * 订阅事件,该方法只会接收一个参数，即希望订阅的事件
+     * 名称是任意的，满足注释、单参数、公共访问修饰符即可
+     * @param eventData 订阅事件
+     */
+    @Subscribe
+    public void getData(EventData eventData) {
+        Toast.makeText(this, "name = " + eventData.getName() + ", message = " + eventData.getMessage(), Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * 两个订阅事件都会生效
+     * @param eventData 订阅事件
+     */
+    @Subscribe
+    public void showData(EventData eventData) {
+        String text = eventData.getName() + " + " + eventData.getMessage();
+        btn_goto.setText(text);
+    }
+
+    /**
+     * produce注释也可以发布事件，它在任何订阅者注册时立即向其提供回调
+     * 此方法不接受任何参数，返回类型的作用为生成初始值的事件类型
+     * @return 事件类型
+     */
+    @Produce
+    public EventData produceEventData() {
+        EventData eventData = new EventData("yang", "hi!");
+        return eventData;
     }
 
     @TargetApi(18)
