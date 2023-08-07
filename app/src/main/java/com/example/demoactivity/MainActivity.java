@@ -1,11 +1,15 @@
 package com.example.demoactivity;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -25,10 +29,16 @@ import com.example.demoactivity.xLog.XlogActivity;
 
 public class MainActivity extends AppCompatActivity {
 
+    public NetworkReceiver receiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        receiver = new NetworkReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        this.registerReceiver(receiver, intentFilter, null, null);
         initView();
         initPermission();
     }
@@ -49,6 +59,12 @@ public class MainActivity extends AppCompatActivity {
             default:
                 break;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        this.unregisterReceiver(receiver);
     }
 
     private void initView() {
@@ -147,5 +163,36 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean checkPermission(Context context, String permission) {
         return PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(context, permission);
+    }
+
+    public class NetworkReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("TEST", "intent action = " + intent.getAction());
+            Bundle extras = intent.getExtras();
+            if (extras == null) {
+                return;
+            }
+            String str = "extraInfo";
+            String apn = extras.getString(str);
+            if (apn == null || TextUtils.isEmpty(apn)) {
+                return;
+            }
+            Log.d("TEST", "APN = " + apn);
+//            Set<String> strings = extras.keySet();
+//            for (String keyStr:strings) {
+//                if(extras.get(keyStr) instanceof Integer){
+//                    Log.d("TEST","intent extras(int) :"+ keyStr + ":" + extras.get(keyStr));
+//                }else if(extras.get(keyStr) instanceof String){
+//                    Log.v("TEST","intent extras(String) :" + keyStr + ":" + extras.get(keyStr));
+//                }else{
+//                    Log.v("TEST","intent extras() :" + keyStr + ":" + extras.get(keyStr));
+//                }
+//            }
+            if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
+                Toast.makeText(MainActivity.this, "网络状态变换", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

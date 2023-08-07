@@ -4,8 +4,12 @@ import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -37,13 +41,15 @@ public class TestActivity extends AppCompatActivity {
     private final long DEFAULT_COUNT = 6 * 1000L;
     private final long DEFAULT_DELAY = 1000L;
 
-    Button btn_goto;
+    private Button btn_goto;
+    private TextView tv_query_result;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
         initView();
+        queryApn();
         BusHelper.getBus().register(this);
     }
 
@@ -177,6 +183,8 @@ public class TestActivity extends AppCompatActivity {
                 BusHelper.getBus().post(new EventData("li", "hello"));
             }
         });
+
+        tv_query_result = findViewById(R.id.tv_query_result);
     }
 
     /**
@@ -186,7 +194,7 @@ public class TestActivity extends AppCompatActivity {
      */
     @Subscribe
     public void getData(EventData eventData) {
-        Toast.makeText(this, "name = " + eventData.getName() + ", message = " + eventData.getMessage(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "name = " + eventData.getName() + ", message = " + eventData.getMessage(), Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -195,8 +203,8 @@ public class TestActivity extends AppCompatActivity {
      */
     @Subscribe
     public void showData(EventData eventData) {
-        String text = eventData.getName() + " + " + eventData.getMessage();
-        btn_goto.setText(text);
+//        String text = eventData.getName() + " + " + eventData.getMessage();
+//        btn_goto.setText(text);
     }
 
     /**
@@ -208,6 +216,51 @@ public class TestActivity extends AppCompatActivity {
     public EventData produceEventData() {
         EventData eventData = new EventData("yang", "hi!");
         return eventData;
+    }
+
+    private void queryApn() {
+        if (checkSelfPermission(android.Manifest.permission.WRITE_APN_SETTINGS) != PackageManager.PERMISSION_GRANTED) {
+            // 未授权
+            requestPermissions(new String[]{android.Manifest.permission.WRITE_APN_SETTINGS}, 1);
+            return;
+        }
+        Cursor cursor = null;
+        ContentResolver resolver = getContentResolver();
+        Uri uri = Uri.parse("content://telephony/carriers");
+        String[] project = {"_id, name, apn"};
+        String selection = "current = 1";
+        String[] selectArgs = null;
+        String sortOrder = "name ASC";
+        StringBuilder text = new StringBuilder();
+        cursor = resolver.query(uri, project, selection, selectArgs, sortOrder);
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                int id = cursor.getInt(cursor.getColumnIndex("_id"));
+                String name = cursor.getString(cursor.getColumnIndex("name"));
+                String apn = cursor.getString(cursor.getColumnIndex("apn"));
+                text.append("id = ").append(String.valueOf(id)).append(", name = ").append(name).append(", apn = ").append(apn).append("\n");
+            }
+            cursor.close();
+        }
+        resolver = null;
+        cursor = null;
+        tv_query_result.setText(text);
+    }
+
+    private void query() {
+        Uri PREFERRED_APN_URI = Uri.parse("content://telephony/carriers/preferapn");
+        ContentResolver cResolver = getContentResolver();
+        StringBuilder text = new StringBuilder();
+        Cursor cr = cResolver.query(PREFERRED_APN_URI, null, null, null, null);
+        cr.moveToFirst();
+        String user = cr.getString(cr.getColumnIndex("user"));
+        String pass = cr.getString(cr.getColumnIndex("password"));
+        text.append("user = ").append(user).append(", pass = ").append(pass).append("\n");
+        cr.close();
+        cResolver = null;
+        cr = null;
+        tv_query_result.setText(text);
+
     }
 
     @TargetApi(18)
