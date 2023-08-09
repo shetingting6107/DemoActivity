@@ -22,6 +22,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.demoactivity.accessibility.ui.AccessibilityActivity;
 import com.example.demoactivity.content.observer.DemoObserverActivity;
+import com.example.demoactivity.mdm.MdmDemoActivity;
 import com.example.demoactivity.mvvm.UserInfoActivity;
 import com.example.demoactivity.netWork.NetWorkActivity;
 import com.example.demoactivity.wanandroid.login.LoginActivity;
@@ -141,6 +142,12 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, com.example.demoactivity.intent.MainActivity.class);
                 startActivity(intent);
             }
+        });
+
+        TextView tv_mdm = findViewById(R.id.tv_mdm);
+        tv_mdm.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, MdmDemoActivity.class);
+            startActivity(intent);
         });
 
     }

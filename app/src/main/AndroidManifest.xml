@@ -181,6 +181,15 @@
             android:launchMode="singleTop"
             android:theme="@style/AppTheme"/>
 
+        <activity android:name=".mdm.MdmDemoActivity"
+            android:configChanges="screenSize|keyboard|keyboardHidden|navigation"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme"/>
+        
+        <uses-library android:name="tdframework"
+            android:required="false"/>
+
     </application>
 
 </manifest>
