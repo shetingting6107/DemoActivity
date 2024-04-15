@@ -180,7 +180,20 @@ public class TestActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //发送事件的通用方式
-                BusHelper.getBus().post(new EventData("li", "hello"));
+//                BusHelper.getBus().post(new EventData("li", "hello"));
+                new CountDownTimer(20000, 5000) { // 第一个参数是总倒计时时间，第二个参数是倒计时间隔
+                    public void onTick(long millisUntilFinished) {
+                        // 在每次倒计时间隔调用，可以不做任何操作
+                        String msg = isAppForeground(TestActivity.this) ? "在" : "不在";
+                        Toast.makeText(TestActivity.this, "TestApp应用当前" + msg + "前台显示", Toast.LENGTH_SHORT).show();
+                    }
+
+                    public void onFinish() {
+                        // 倒计时结束后调用，在这里编写需要延时执行的代码
+                        String msg = isAppForeground(TestActivity.this) ? "在" : "不在";
+                        Toast.makeText(TestActivity.this, "TestApp应用当前" + msg + "前台显示", Toast.LENGTH_SHORT).show();
+                    }
+                }.start();
             }
         });
 
@@ -294,6 +307,19 @@ public class TestActivity extends AppCompatActivity {
             }
         }
         return null;
+    }
+
+    public boolean isAppForeground(Context context) {
+        ActivityManager manager = (ActivityManager)context.getSystemService(ACTIVITY_SERVICE);
+        if (manager != null) {
+            for (ActivityManager.RunningAppProcessInfo processInfo : manager.getRunningAppProcesses()) {
+                if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
+                        && processInfo.processName.equals(context.getPackageName())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }
