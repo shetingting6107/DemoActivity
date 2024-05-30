@@ -13,6 +13,13 @@
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="com.vivo.enterprise.permission.EMM"/>
+    <!-- 杭研与vivo约定的自定义权限，目前用于小绿伞项目 -->
+    <uses-permission android:name="${applicationId}.mdm.agent.state.PERMISSION" />
+    <!-- vivo提供的自定义权限，目前准备用于和管家项目 -->
+    <uses-permission android:name="komect.aqb.permission.MDM_PLUGIN" />
+    <!-- vivo政企平台SDK所需权限 -->
+    <uses-permission android:name="com.vivo.custom.permission.PLUG_IN" />
 
     <application
         android:allowBackup="true"

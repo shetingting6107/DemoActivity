@@ -7,8 +7,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -27,6 +29,11 @@ import com.example.demoactivity.mvvm.UserInfoActivity;
 import com.example.demoactivity.netWork.NetWorkActivity;
 import com.example.demoactivity.wanandroid.login.LoginActivity;
 import com.example.demoactivity.xLog.XlogActivity;
+import com.vivo.customized.support.DriverImpl;
+import com.vivo.customized.support.inter.VivoApplicationControl;
+import com.vivo.customized.support.utils.CustPackageInstallObserver;
+
+import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -150,6 +157,11 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        TextView tv_init_admin = findViewById(R.id.tv_init_admin);
+        tv_init_admin.setOnClickListener(v -> {
+            install();
+        });
+
     }
 
     private void initPermission() {
@@ -166,6 +178,27 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         Log.d("Main","test commit");
+    }
+
+    private void install() {
+        Intent intent = new Intent();
+        intent.setAction("komect.intent.action.INSTALL_PACKAGE");
+        intent.putExtra("file_path", Environment.getExternalStorageDirectory().getAbsolutePath() + "/ladb.apk");
+//        intent.putExtra("package_name", "com.example.demoactivity");
+        sendBroadcast(intent);
+    }
+
+    private void install1() {
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/ladb.apk";
+        DriverImpl dirverImpl = new DriverImpl();
+        VivoApplicationControl applicationControl = dirverImpl.getApplicationManager();
+        applicationControl.installPackageWithObserver(Uri.fromFile(new File(path)).getPath(), 2, getPackageName(), new CustPackageInstallObserver() {
+            @Override
+            public void onPackageInstalled(String basePackageName, int returnCode, String msg, Bundle extras) {
+                Toast.makeText(MainActivity.this, "packageInstalled packageName = " + basePackageName +" returnCode = " + returnCode, Toast.LENGTH_SHORT).show();
+                super.onPackageInstalled(basePackageName, returnCode, msg, extras);
+            }
+        });
     }
 
     private boolean checkPermission(Context context, String permission) {
